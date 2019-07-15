@@ -9,48 +9,57 @@
 import csv
 import re
 
-def locate_students(_in):
-    with open(_in, 'r') as csv_in:
-        indices = []
-        x = 0
-        csv_lines = csv_in.readlines()
-        for line in csv_lines:
-            if re.search("\d{6,6},{2,2}\".*\",+", line):#[\d,]+[0\.0]+$", line):
-                #print(line)
-                indices.append(x)
-            x += 1
-        print(indices)
-        return indices
+def locate_students(lines_in): 
+    indices = []
+    x = 0 
+    for line in lines_in:
+        if re.search("\d{6}.*$", line):#[\d,]+[0\.0]+$", line):
+            #print(line)
+            indices.append(x)
+        #else:
+            #print (f"OMITTED:{line}")
+        x += 1
+    #print(indices)
+    return indices
 
-def locate_subtotals(csv_path):
-    with open(csv_path, 'r') as csv_file:
-        csv_lines = csv_file.readlines()
-        curr_line = 0
-        sections = dict()
-        ranges = []
-        for line in csv_lines:
-            if re.search("Subtotals.*$", line):
-                #print("Found some subtotals!")
-                ranges.append((curr_line - 5, curr_line + 15))
-            curr_line += 1 
-        print(ranges)
-        return ranges
+def locate_subtotals(lines_in): 
+    curr_line = 0
+    sections = dict()
+    ranges = []
+    for line in lines_in:
+        if re.search("Subtotals.*$", line):
+            #print("Found some subtotals!")
+            ranges.append((curr_line - 5, curr_line + 15))
+        curr_line += 1 
+    print(ranges)
+    return ranges
 
-# _in: string This is the path to the file to read from.
-# _out: string This is the path to the file to write to. This will be the processed file we use later on.
-def extract_ninth_grade_stats(_in, _out, subtotals_ranges):
-    csv_file_in = open(_in)
+def locate_grade(lines_in, grade):
+    without_subtotals = filter_subtotals(lines_in, "test_data/out.csv", locate_subtotals(lines_in))
+    cursor = 0
+    output = []
+    for line in without_subtotals:
+        if(re.search(f"Grade Level: {grade}.*$", line)):
+            #print(line)
+            output.append(cursor)
+        cursor += 1
+    print(output)
+    return output
+
+def filter_subtotals(lines_in, _out, subtotals_ranges): 
     with open(_out, 'w') as csv_file:
-        writing = False
-        lines = csv_file_in.readlines()
+        writing = False 
         cursor = 0
+        output = []
         for tup in subtotals_ranges:
             for y in range(cursor, tup[0]):
-                csv_file.write(lines[y])
+                csv_file.write(lines_in[y])
+                output.append(lines_in[y])
             cursor = tup[1]
-            #for y in range(tup[0], tup[1]):
-            #    csv_file.write(lines[y])  
-    return
+    return output
 
-#extract_ninth_grade_stats('test_data/test.csv', 'test_data/out.csv', locate_subtotals('test_data/test.csv'))
-locate_students('test_data/out.csv')
+with open('test_data/test.csv', 'r') as test_input:
+   test_lines = test_input.readlines()
+   # locate_students(test_lines)
+   locate_grade(test_lines, "09")
+
