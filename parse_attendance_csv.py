@@ -42,10 +42,8 @@ def extract_students(_in):
     return output
 
 with open('test_data/test.csv', 'r') as test_input:
-   students = extract_students(test_input)
-   #print(students[0].__dict__) 
-with open('_templates/attendance.html', 'r') as attendance_template:
-    #print(attendance_template.read())
+   students = extract_students(test_input) 
+with open('_templates/attendance.html', 'r') as attendance_template: 
     email_content = students[0].render(attendance_template.read())
 with open('test_data/out.html', 'w') as test_output:
     test_output.write(email_content)
