@@ -24,8 +24,7 @@ def extract_students(_in):
         if re.search("Grade Level:.*$", row[0]):
             curr_grade = re.search("(\d+)", row[0]).groups()[0]
         elif re.search("\d{6}.*$", row[0]):
-            output.append(Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10])) 
-    #print(output[0].grade)
+            output.append(Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10]))  
     return output
 
 with open('test_data/test.csv', 'r') as test_input:
