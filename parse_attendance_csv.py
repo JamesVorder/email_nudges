@@ -9,10 +9,15 @@
 # https://wiki.python.org/moin/Templating
 # https://github.com/defunkt/pystache
 # https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+# https://www.tutorialspoint.com/python_pandas/python_pandas_comparison_with_sql.htm
+# https://pandas.pydata.org/pandas-docs/stable/
+# https://pandas.pydata.org/pandas-docs/stable/user_guide/cookbook.html#new-columns
+# https://stackoverflow.com/questions/35439613/python-pandas-dividing-column-by-another-column
 import csv
 import re
 import pystache
 import pandas as pd
+import numpy as np
 
 class Student: 
     def __init__(self, grade, ID, name, days_enrolled, days_not_enrolled, days_present, days_excused, days_not_excused):
@@ -44,8 +49,11 @@ def extract_students(_in):
     return output
 
 def compute_averages(_students): 
-    df = pd.DataFrame([if student.grade == '09': student.__dict__.values() for student in _students], columns=_students[0].__dict__.keys())
-    print(df)
+    df = pd.DataFrame([student.__dict__.values() for student in _students], columns=_students[0].__dict__.keys())
+    df[['days_present', 'days_enrolled']] = df[['days_present', 'days_enrolled']].apply(pd.to_numeric)
+    ninth_graders = df[df['grade'] == '09']
+    ninth_graders['attendance_rate'] = ninth_graders['days_present']/ninth_graders['days_enrolled'] 
+    print(ninth_graders)
 
 with open('test_data/test.csv', 'r') as test_input:
    students = extract_students(test_input) 
