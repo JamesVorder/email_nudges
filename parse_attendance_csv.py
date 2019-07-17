@@ -8,9 +8,11 @@
 # https://docs.python.org/3.7/howto/regex.html
 # https://wiki.python.org/moin/Templating
 # https://github.com/defunkt/pystache
+# https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
 import csv
 import re
 import pystache
+import pandas as pd
 
 class Student: 
     def __init__(self, grade, ID, name, days_enrolled, days_not_enrolled, days_present, days_excused, days_not_excused):
@@ -41,9 +43,14 @@ def extract_students(_in):
             output.append(Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10]))  
     return output
 
+def compute_averages(_students): 
+    df = pd.DataFrame([if student.grade == '09': student.__dict__.values() for student in _students], columns=_students[0].__dict__.keys())
+    print(df)
+
 with open('test_data/test.csv', 'r') as test_input:
    students = extract_students(test_input) 
-with open('_templates/attendance.html', 'r') as attendance_template: 
-    email_content = students[0].render(attendance_template.read())
-with open('test_data/out.html', 'w') as test_output:
-    test_output.write(email_content)
+   compute_averages(students)
+#with open('_templates/attendance.html', 'r') as attendance_template: 
+#    email_content = students[0].render(attendance_template.read())
+#with open('test_data/out.html', 'w') as test_output:
+#    test_output.write(email_content)
