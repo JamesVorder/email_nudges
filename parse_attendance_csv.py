@@ -19,11 +19,6 @@ import pystache
 import pandas as pd
 import numpy as np
 
-class Grade:
-    average_attendance_rate = 0
-    def __init__(self, _students):
-        self.students = _students
-
 class Student: 
     def __init__(self, grade, ID, name, days_enrolled, days_not_enrolled, days_present, days_excused, days_not_excused, attendance_rate=1):
         self.grade = grade
@@ -63,12 +58,13 @@ def get_attendance_rates(_students, grade):
 
 def get_average_attendance_rate(_students_dataFrame):
     df = _students_dataFrame
-    print(df[['attendance_rate']].mean(axis=0))
+    return df[['attendance_rate']].mean(axis=0)
 
 with open('test_data/test.csv', 'r') as test_input:
-   students = extract_students(test_input) 
-   aggregate_averages(compute_averages(students, '09'))
-#with open('_templates/attendance.html', 'r') as attendance_template: 
-#    email_content = students[0].render(attendance_template.read())
-#with open('test_data/out.html', 'w') as test_output:
-#    test_output.write(email_content)
+    # read the students out of the csv into an array of Student objects
+    students = extract_students(test_input) 
+    # parsing the students into a dataframe lets us do computations on them more easily
+    students_dataframe = compute_averages(students, '09')
+    average_attendance_rate = aggregate_averages(students_dataframe)
+
+
