@@ -53,7 +53,7 @@ def extract_students(_in):
             output.append(Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10]))  
     return output
 
-def compute_averages(_students, grade): 
+def get_attendance_rates(_students, grade): 
     df = pd.DataFrame([student.__dict__.values() for student in _students], columns=_students[0].__dict__.keys())
     df[['days_present', 'days_enrolled']] = df[['days_present', 'days_enrolled']].apply(pd.to_numeric)
     df = df[df['grade'] == grade]
@@ -61,12 +61,13 @@ def compute_averages(_students, grade):
     print(df)
     return df
 
-#def aggregate_averages(_students):
-
+def get_average_attendance_rate(_students_dataFrame):
+    df = _students_dataFrame
+    print(df[['attendance_rate']].mean(axis=0))
 
 with open('test_data/test.csv', 'r') as test_input:
    students = extract_students(test_input) 
-   compute_averages(students, '09')
+   aggregate_averages(compute_averages(students, '09'))
 #with open('_templates/attendance.html', 'r') as attendance_template: 
 #    email_content = students[0].render(attendance_template.read())
 #with open('test_data/out.html', 'w') as test_output:
