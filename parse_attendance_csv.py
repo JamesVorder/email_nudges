@@ -19,8 +19,13 @@ import pystache
 import pandas as pd
 import numpy as np
 
+class Grade:
+    average_attendance_rate = 0
+    def __init__(self, _students):
+        self.students = _students
+
 class Student: 
-    def __init__(self, grade, ID, name, days_enrolled, days_not_enrolled, days_present, days_excused, days_not_excused):
+    def __init__(self, grade, ID, name, days_enrolled, days_not_enrolled, days_present, days_excused, days_not_excused, attendance_rate=1):
         self.grade = grade
         self.ID = ID
         self.name = name
@@ -48,16 +53,20 @@ def extract_students(_in):
             output.append(Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10]))  
     return output
 
-def compute_averages(_students): 
+def compute_averages(_students, grade): 
     df = pd.DataFrame([student.__dict__.values() for student in _students], columns=_students[0].__dict__.keys())
     df[['days_present', 'days_enrolled']] = df[['days_present', 'days_enrolled']].apply(pd.to_numeric)
-    ninth_graders = df[df['grade'] == '09']
-    ninth_graders['attendance_rate'] = ninth_graders['days_present']/ninth_graders['days_enrolled'] 
-    print(ninth_graders)
+    df = df[df['grade'] == grade]
+    df['attendance_rate'] = df['days_present']/df['days_enrolled'] 
+    print(df)
+    return df
+
+#def aggregate_averages(_students):
+
 
 with open('test_data/test.csv', 'r') as test_input:
    students = extract_students(test_input) 
-   compute_averages(students)
+   compute_averages(students, '09')
 #with open('_templates/attendance.html', 'r') as attendance_template: 
 #    email_content = students[0].render(attendance_template.read())
 #with open('test_data/out.html', 'w') as test_output:
