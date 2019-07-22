@@ -84,10 +84,12 @@ with open('test_data/test.csv', 'r') as test_input:
     #print(students_dataframe)
     def update_attendance(row):
         #print(f"{row} was the row.")
-        students[int(row['ID'])].attendance_rate = row['attendance_rate']
+        curr_student = students[int(row['ID'])]
+        curr_student.attendance_rate = row['attendance_rate']
+        curr_student.attendance_distance = float(curr_student.attendance_rate - average_attendance_rate)
 
     df = students_dataframe[students_dataframe['grade'] == '09']
     #print(df)
     df.apply(update_attendance, axis=1)
-    print(students[319752].attendance_rate)
+    print(f"{students[319752].attendance_rate} ({students[319752].attendance_distance})")
 
