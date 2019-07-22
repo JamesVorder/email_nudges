@@ -18,7 +18,9 @@
 # https://vim.fandom.com/wiki/Go_to_definition_using_g
 import csv
 import re
-import pystache
+import jinja2 as jinja
+#import pybars3
+#import pystache
 import pandas as pd
 import numpy as np
 
@@ -41,7 +43,8 @@ class Student:
     def __str__(self):
         return self.name
     def render(self, _template):
-        return pystache.render(_template, self.__dict__)
+        tm = jinja.Template(_template)
+        return tm.render(self.__dict__)
 
 # outputs a list of Student objects.
 def extract_students(_in):
@@ -92,4 +95,9 @@ with open('test_data/test.csv', 'r') as test_input:
     #print(df)
     df.apply(update_attendance, axis=1)
     print(f"{students[319752].attendance_rate} ({students[319752].attendance_distance})")
+
+    for student_id, student in students.items():
+        with open(f'_templates/attendance.html', 'r') as template:
+            with open(f'test_data/{student_id}_attendanceReport.html', 'w') as out:
+                out.write(student.render(template.read()))
 
