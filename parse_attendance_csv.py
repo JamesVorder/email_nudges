@@ -87,10 +87,9 @@ with open('test_data/test.csv', 'r') as test_input:
     students = extract_students(test_input) 
     # parsing the students into a dataframe lets us do computations on them more easily
     students_dataframe = get_attendance_rates(students, '09')
-    #float
+
     average_attendance_rate = get_average_attendance_rate(students_dataframe)
-    #new_students = [student.attendance_rate = students_dataframe[students_dataframe['ID' == student.ID]][0]['attendance_rate'] for student in students]
-    #print(students_dataframe)
+     
     def update_attendance(row):
         #print(f"{row} was the row.")
         curr_student = students[int(row['ID'])]
@@ -103,7 +102,8 @@ with open('test_data/test.csv', 'r') as test_input:
     print(f"{students[319752].attendance_rate} ({students[319752].attendance_distance})")
 
     for student_id, student in students.items():
-        with open(f'_templates/attendance.html', 'r') as template:
-            with open(f'test_data/{student_id}_attendanceReport.html', 'w') as out:
-                out.write(student.render(template.read()))
+        if student.grade == '09':
+            with open(f'_templates/attendance.html', 'r') as template:
+                with open(f'test_data/{student_id}_attendanceReport.html', 'w') as out: 
+                    out.write(student.render(template.read()))
 
