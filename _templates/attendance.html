@@ -21,22 +21,35 @@
 </style>
 	 </head>
 	<body>
-		<p>Dear parent, <br><br>I am pleased to share {{name}}'s weekly progress report with you:</p>
+		<p>Dear parent, <br><br>I am pleased to share {{student.name}}'s weekly progress report with you:</p>
 		<br>
 		<table>
 			<thead>
 				<tr>
+					<th></th>
 					<th colspan="2">Attendance</th>	
 				</tr>
 				<tr>
+					<th></th>
 					<th>This Week</th>
-					<th>{{days_enrolled}} Days So Far</th>
+					<th>{{student.days_enrolled}} Days So Far</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
+					<td></td>
 					<td>N/A</td>
-					<td>Missed {{total_days_absent}}</td>
+					<td>Missed {{student.total_days_absent}}</td>
+				</tr>
+				<tr>
+					<td>Average</td>
+					<td>N/A</td>
+					<td>{{student.get_class_average_attendance()}}</td>
+				</tr>
+				<tr>
+					<td>College and Career Ready Goal</td>
+					<td>94%</td>
+					<td>94%</td>
 				</tr>
 			</tbody>
 		</table>

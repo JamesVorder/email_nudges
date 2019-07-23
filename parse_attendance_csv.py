@@ -16,6 +16,7 @@
 # https://www.pythonforbeginners.com/basics/list-comprehensions-in-python
 # https://vim.fandom.com/wiki/Replace_a_word_with_yanked_text
 # https://vim.fandom.com/wiki/Go_to_definition_using_g
+# http://zetcode.com/python/jinja/
 import csv
 import re
 import jinja2 as jinja
@@ -26,8 +27,6 @@ import numpy as np
 
 class Student: 
     # the distance from this student's attendance rate to the average attendance rate
-    attendance_distance = 0.0
-    attendance_rate = 1.0
     def __init__(self, grade, ID, name, days_enrolled, days_not_enrolled, days_present, days_excused, days_not_excused, attendance_rate=1):
         self.grade = grade
         self.ID = ID
@@ -39,12 +38,16 @@ class Student:
         self.days_not_excused = days_not_excused
         #DERIVATIVE VALUES
         self.total_days_absent = int(days_excused) + int(days_not_excused)
+        self.attendance_distance = 0.0
+        self.attendance_rate = 1.0
 
     def __str__(self):
         return self.name
     def render(self, _template):
         tm = jinja.Template(_template)
-        return tm.render(self.__dict__)
+        return tm.render(student=self)
+    def get_class_average_attendance(self):
+        return abs(self.attendance_distance - self.attendance_rate)
 
 # outputs a list of Student objects.
 def extract_students(_in):
