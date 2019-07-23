@@ -17,6 +17,7 @@
 # https://vim.fandom.com/wiki/Replace_a_word_with_yanked_text
 # https://vim.fandom.com/wiki/Go_to_definition_using_g
 # http://zetcode.com/python/jinja/
+# http://jinja.pocoo.org/docs/2.10/templates/
 import csv
 import re
 import jinja2 as jinja
@@ -43,9 +44,11 @@ class Student:
 
     def __str__(self):
         return self.name
+    
     def render(self, _template):
         tm = jinja.Template(_template)
         return tm.render(student=self)
+    
     def get_class_average_attendance(self):
         return abs(self.attendance_distance - self.attendance_rate)
 
