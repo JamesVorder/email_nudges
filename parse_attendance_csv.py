@@ -26,7 +26,7 @@ import jinja2 as jinja
 import pandas as pd
 import numpy as np
 
-class Student: 
+class Student:
     # the distance from this student's attendance rate to the average attendance rate
     def __init__(self, grade, ID, name, days_enrolled, days_not_enrolled, days_present, days_excused, days_not_excused, attendance_rate=1):
         self.grade = grade
@@ -44,66 +44,67 @@ class Student:
 
     def __str__(self):
         return self.name
-    
+
     def render(self, _template):
         tm = jinja.Template(_template)
         return tm.render(student=self)
-    
+
     def get_class_average_attendance(self):
         return abs(self.attendance_distance - self.attendance_rate)
 
-# outputs a list of Student objects.
-def extract_students(_in):
-    rows = csv.reader(_in)
-    curr_grade = "" 
-    output = {}
-    for row in rows:
-        if re.search("Grade Level:.*$", row[0]):
-            curr_grade = re.search("(\d+)", row[0]).groups()[0]
-        elif re.search("\d{6}.*$", row[0]):
-            output[int(row[0])] = Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10])
-    return output
+def import_attendance_from_csv(filename):
+    # outputs a list of Student objects.
+    def extract_students(_in):
+        rows = csv.reader(_in)
+        curr_grade = ""
+        output = {}
+        for row in rows:
+            if re.search("Grade Level:.*$", row[0]):
+                curr_grade = re.search("(\d+)", row[0]).groups()[0]
+            elif re.search("\d{6}.*$", row[0]):
+                output[int(row[0])] = Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10])
+        return output
 
-def get_attendance_rates(_students, grade): 
-    # "comprehend" the list of students as a dataframe
-    students_list = _students.values()
-    df = pd.DataFrame([student.__dict__.values() for student_id, student in students.items()], columns=students[303234].__dict__.keys())
-    # Specify type where appropriate (for maths later on)
-    df[['days_present', 'days_enrolled']] = df[['days_present', 'days_enrolled']].apply(pd.to_numeric)
-    # filter down to the specified grade
-    df = df[df['grade'] == grade]
-    # compute the attendance rate
-    df['attendance_rate'] = df['days_present']/df['days_enrolled'] 
-    #print(df)
-    # TODO: it's a bit ugly to pass in an array and get back a DataFrame, no?
-    return df
+    def get_attendance_rates(_students, grade):
+        # "comprehend" the list of students as a dataframe
+        students_list = _students.values()
+        #TODO:Fix this. Student ID 303234 may not exist forever.
+        df = pd.DataFrame([student.__dict__.values() for student_id, student in students.items()], columns=students[303234].__dict__.keys())
+        # Specify type where appropriate (for maths later on)
+        df[['days_present', 'days_enrolled']] = df[['days_present', 'days_enrolled']].apply(pd.to_numeric)
+        # filter down to the specified grade
+        df = df[df['grade'] == grade]
+        # compute the attendance rate
+        df['attendance_rate'] = df['days_present']/df['days_enrolled']
+        #print(df)
+        # TODO: it's a bit ugly to pass in an array and get back a DataFrame, no?
+        return df
 
-def get_average_attendance_rate(_students_dataFrame):
-    df = _students_dataFrame
-    return df[['attendance_rate']].mean(axis=0)
+    def get_average_attendance_rate(_students_dataFrame):
+        df = _students_dataFrame
+        return df[['attendance_rate']].mean(axis=0)
 
-with open('test_data/test.csv', 'r') as test_input:
-    # read the students out of the csv into an array of Student objects
-    students = extract_students(test_input) 
-    # parsing the students into a dataframe lets us do computations on them more easily
-    students_dataframe = get_attendance_rates(students, '09')
+    with open(filename, 'r') as incoming:
+        # read the students out of the csv into an array of Student objects
+        students = extract_students(incoming)
+        # parsing the students into a dataframe lets us do computations on them more easily
+        students_dataframe = get_attendance_rates(students, '09')
 
-    average_attendance_rate = get_average_attendance_rate(students_dataframe)
-     
-    def update_attendance(row):
-        #print(f"{row} was the row.")
-        curr_student = students[int(row['ID'])]
-        curr_student.attendance_rate = row['attendance_rate']
-        curr_student.attendance_distance = float(curr_student.attendance_rate - average_attendance_rate)
+        average_attendance_rate = get_average_attendance_rate(students_dataframe)
 
-    df = students_dataframe[students_dataframe['grade'] == '09']
-    #print(df)
-    df.apply(update_attendance, axis=1)
-    print(f"{students[319752].attendance_rate} ({students[319752].attendance_distance})")
+        def update_attendance(row):
+            #print(f"{row} was the row.")
+            curr_student = students[int(row['ID'])]
+            curr_student.attendance_rate = row['attendance_rate']
+            curr_student.attendance_distance = float(curr_student.attendance_rate - average_attendance_rate)
 
-    for student_id, student in students.items():
-        if student.grade == '09':
-            with open(f'_templates/attendance.html', 'r') as template:
-                with open(f'test_data/{student_id}_attendanceReport.html', 'w') as out: 
-                    out.write(student.render(template.read()))
+        df = students_dataframe[students_dataframe['grade'] == '09']
+        #print(df)
+        df.apply(update_attendance, axis=1)
+        #print(f"{students[319752].attendance_rate} ({students[319752].attendance_distance})")
 
+        for student_id, student in students.items():
+            if student.grade == '09':
+                with open(f'_templates/attendance.html', 'r') as template:
+                    with open(f'test_data/{student_id}_attendanceReport.html', 'w') as out:
+                        out.write(student.render(template.read()))
