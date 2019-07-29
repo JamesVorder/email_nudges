@@ -18,21 +18,22 @@ class App:
 
         frame = Frame(master)
         frame.pack()
+        master.title("Attendance Nudge-er")
 
         self.button = Button(
                 frame, text="QUIT", fg="red", command=frame.quit
                 )
-        self.button.pack(side=LEFT)
+        self.button.pack(side="left")
 
         self.pick_file = Button(
                 frame, text="Import Report", fg="green", command=self.import_report
                 )
-        self.pick_file.pack(side=LEFT)
+        self.pick_file.pack(side="left")
 
         self.out = Label(
                 frame, text="No reports run..."
                 )
-        self.out.pack(side=BOTTOM)
+        self.out.pack(side="bottom")
 
     def import_report(self):
         filename = askopenfilename()
