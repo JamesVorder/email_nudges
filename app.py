@@ -15,35 +15,26 @@ import parse_attendance_csv
 
 class App:
     def __init__(self, master):
-
-        frame = Frame(master)
-        frame.pack()
+ 
         master.title("Attendance Nudge-er")
 
-        self.button = Button(
-                frame, text="QUIT", fg="red", command=frame.quit
-                )
-        self.button.pack(side="left")
+        self.btn_quit = Button(master, text="QUIT", fg="red", command=master.quit)
+        self.btn_quit.grid(row=0, column=0)
 
-        self.pick_file = Button(
-                frame, text="Import Report", fg="green", command=self.import_report
-                )
-        self.pick_file.pack(side="left")
+        self.btn_pick = Button(master, text="Import Report", fg="green", command=self.import_report)
+        self.btn_pick.grid(row=0, column=1) 
 
-        self.out = Label(
-                frame, text="No reports run..."
-                )
-        self.out.pack(side="bottom")
+        self.lbl_out = Label(master, text="No reports run...")
+        self.lbl_out.grid(row=1, columnspan=2) 
 
     def import_report(self):
         filename = askopenfilename()
         print(filename)
         parse_attendance_csv.import_attendance_from_csv(filename)
-        self.out.config(text="Ran a report!")
-                
+        self.lbl_out.config(text="Ran a report!")
+
+### MAIN ###
 root = Tk()
-
 app = App(root)
-
 root.mainloop()
 root.destroy()
