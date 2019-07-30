@@ -18,6 +18,7 @@
 # https://vim.fandom.com/wiki/Go_to_definition_using_g
 # http://zetcode.com/python/jinja/
 # http://jinja.pocoo.org/docs/2.10/templates/
+# https://www.tutorialspoint.com/sqlite/sqlite_primary_key
 import csv
 import re
 import jinja2 as jinja
@@ -54,9 +55,12 @@ class Student:
         return abs(self.attendance_distance - self.attendance_rate)
 
     def add_to_db(self, connection):
-        connection.execute("CREATE TABLE if not exists students (ID integer, name text, grade integer)")
-        connection.execute("INSERT INTO students VALUES(?, ?, ?)", (int(self.ID), self.name, int(self.grade)))
-        connection.commit()
+        try:
+            connection.execute("CREATE TABLE if not exists students (ID integer primary key, name text, grade integer)")
+            connection.execute("INSERT INTO students VALUES(?, ?, ?)", (int(self.ID), self.name, int(self.grade)))
+            #connection.commit()
+        except sqlite3.IntegrityError:
+            pass
 
 class AttendanceReport:
     def __init__(self, filename, db, target_grade="09"):
@@ -80,6 +84,7 @@ class AttendanceReport:
                 new_student.add_to_db(self.connection)
                 self.students[int(new_student.ID)] = new_student
                 print(f"Added {new_student.name} to the DB...")
+            self.connection.commit()
 
     def get_attendance_rates(self):
         # "comprehend" the list of students as a dataframe
