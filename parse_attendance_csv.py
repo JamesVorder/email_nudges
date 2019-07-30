@@ -70,20 +70,16 @@ class AttendanceReport:
         self.filename = filename
         self.target_grade = target_grade
 
-    def extract_students(self, _in):
-        #print(f"Extracting students from {self.filename}")
+    def extract_students(self, _in): 
         rows = csv.reader(_in)
         curr_grade = ""
-        for row in rows:
-            #print(row)
+        for row in rows: 
             if re.search("Grade Level:.*$", row[0]):
                 curr_grade = re.search("(\d+)", row[0]).groups()[0]
-            elif re.search("\d{6}.*$", row[0]):
-                #print("doing the thing")
+            elif re.search("\d{6}.*$", row[0]): 
                 new_student = Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10])
                 new_student.add_to_db(self.connection)
-                self.students[int(new_student.ID)] = new_student
-                print(f"Added {new_student.name} to the DB...")
+                self.students[int(new_student.ID)] = new_student 
             self.connection.commit()
 
     def get_attendance_rates(self):
@@ -109,18 +105,12 @@ class AttendanceReport:
         with open(self.filename, 'r') as incoming:
 
             # read the students out of the csv into an array of Student objects
-            self.extract_students(incoming)
-            print(self.students)
+            self.extract_students(incoming) 
             
-            #print(self.cursor.fetchone())
-            #self.connection.commit()
             self.connection.close()
 
             # parsing the students into a dataframe lets us do computations on them more easily
             students_dataframe = self.get_attendance_rates()
-
-            print(students_dataframe)
-            
             self.average_attendance_rate = self.get_average_attendance_rate(students_dataframe)
 
             def update_attendance(row):
