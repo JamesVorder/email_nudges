@@ -25,6 +25,7 @@ import jinja2 as jinja
 #import pystache
 import pandas as pd
 import numpy as np
+import sqlite3
 
 class Student:
     # the distance from this student's attendance rate to the average attendance rate
@@ -52,9 +53,15 @@ class Student:
     def get_class_average_attendance(self):
         return abs(self.attendance_distance - self.attendance_rate)
 
+    def add_to_db(self, cursor): 
+        cursor.execute("CREATE TABLE if not exists students (ID integer, name text, grade integer)") 
+        cursor.execute("INSERT INTO students VALUES(?, ?, ?)", (int(self.ID), self.name, int(self.grade))) 
+        return cursor
+
 def import_attendance_from_csv(filename):
+
     # outputs a list of Student objects.
-    def extract_students(_in):
+    def extract_students(_in, cursor):
         rows = csv.reader(_in)
         curr_grade = ""
         output = {}
@@ -62,8 +69,10 @@ def import_attendance_from_csv(filename):
             if re.search("Grade Level:.*$", row[0]):
                 curr_grade = re.search("(\d+)", row[0]).groups()[0]
             elif re.search("\d{6}.*$", row[0]):
-                output[int(row[0])] = Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10])
-        return output
+                new_student = Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10])
+                cursor = new_student.add_to_db(cursor)
+                output[int(new_student.ID)] = new_student
+        return output, cursor
 
     def get_attendance_rates(_students, grade):
         # "comprehend" the list of students as a dataframe
@@ -85,8 +94,18 @@ def import_attendance_from_csv(filename):
         return df[['attendance_rate']].mean(axis=0)
 
     with open(filename, 'r') as incoming:
-        # read the students out of the csv into an array of Student objects
-        students = extract_students(incoming)
+
+        conn = sqlite3.connect('students.db')
+        c = conn.cursor()
+       
+       # read the students out of the csv into an array of Student objects
+        students, c = extract_students(incoming, c)
+        #conn.commit()
+        print(students[0])
+        print(c.fetchone())
+
+        conn.close()
+
         # parsing the students into a dataframe lets us do computations on them more easily
         students_dataframe = get_attendance_rates(students, '09')
 
