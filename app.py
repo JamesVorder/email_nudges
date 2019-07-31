@@ -13,6 +13,8 @@
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import report_parser as parser
+from nudger import Nudger
+import yaml
 
 class App:
     def __init__(self, master):
@@ -28,12 +30,20 @@ class App:
         self.lbl_out = Label(master, text="No reports run...")
         self.lbl_out.grid(row=1, columnspan=2)
 
+        with open("config.yml", 'r') as ymlfile:
+                self.conf = yaml.load(ymlfile)
+
     def import_report(self):
         filename = askopenfilename()
         self.lbl_out.config(text=f'Reading {filename}')
         report = parser.AttendanceReport(filename, target_grade="09", db="attendance_nudger_v1")
         report.read()
         self.lbl_out.config(text="Done!")
+        self.btn_send = Button(master, text="Send Text", command=self.send_text)
+        self.btn_send.grid(row=2, columnspan=2)
+
+    def send_text(self):
+        Nudger(self.conf['twilio']['sid'], self.conf['twilio']['auth_token'], self.conf['twilio']['phone'])
 
 ### MAIN ###
 root = Tk()

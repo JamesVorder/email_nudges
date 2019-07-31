@@ -8,3 +8,4 @@ class Nudger:
     def send_text(self, to_student, message):
         message = self.twilio_sms_client.messages.create(body=message, from_=self.twilio_phone_number, to=to_student.phone_number)
         return message.sid
+    
