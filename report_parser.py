@@ -25,6 +25,7 @@ import re
 import pandas as pd
 import numpy as np
 from student import Student
+import sqlite3
 
 class AttendanceReport:
     def __init__(self, filename, db, target_grade="09"):

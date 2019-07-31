@@ -12,7 +12,7 @@
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
-import parse_attendance_csv as parser
+import report_parser as parser
 
 class App:
     def __init__(self, master):
