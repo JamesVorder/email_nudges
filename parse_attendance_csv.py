@@ -19,6 +19,7 @@
 # http://zetcode.com/python/jinja/
 # http://jinja.pocoo.org/docs/2.10/templates/
 # https://www.tutorialspoint.com/sqlite/sqlite_primary_key
+# https://docs.python.org/2/library/sqlite3.html#connection-objects1
 import csv
 import re
 import jinja2 as jinja

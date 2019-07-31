@@ -8,6 +8,7 @@
 # https://effbot.org/tkinterbook/tkinter-classes.htm
 # https://stackoverflow.com/questions/3579568/choosing-a-file-in-python-with-simple-dialog
 # https://docs.python.org/3/library/tkinter.html
+# https://www.effbot.org/tkinterbook/grid.htm
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
