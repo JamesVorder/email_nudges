@@ -30,10 +30,10 @@ class App:
 
     def import_report(self):
         filename = askopenfilename()
-        print(f'Reading {filename}')
+        self.lbl_out.config(text=f'Reading {filename}')
         report = parser.AttendanceReport(filename, target_grade="09", db="attendance_nudger_v1")
         report.read()
-        self.lbl_out.config(text="Imported a report!")
+        self.lbl_out.config(text="Done!")
 
 ### MAIN ###
 root = Tk()
