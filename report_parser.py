@@ -27,6 +27,28 @@ import numpy as np
 from student import Student
 import sqlite3
 
+class StudentListReport:
+    def __init__(self, filename, db):
+        self.connection = sqlite3.connect(db)
+        self.cursor = self.connection.cursor()
+        self.filename = filename
+        self.students = {}
+    
+    def read(self):
+        with open(self.filename, 'r') as incoming:
+            rows = csv.reader(incoming)
+            curr_grade = ""
+            for row in rows: 
+                print(row)
+                if re.search("Grade Level:.*$", row[0]):
+                    curr_grade = re.search("(\d+)", row[0]).groups()[0]
+                elif re.search("\d{6}.*$", row[0]): 
+                    #new_student = Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10])
+                    new_student = Student(ID=row[0], name=row[2], email=row[3], phone=row[4], contact_by_phone=row[5])
+                    new_student.add_to_db(self.connection)
+                    self.students[int(new_student.ID)] = new_student 
+        self.connection.commit()
+
 class AttendanceReport:
     def __init__(self, filename, db, target_grade="09"):
         self.connection = sqlite3.connect(db)

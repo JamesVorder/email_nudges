@@ -1,21 +1,17 @@
 import jinja2 as jinja
 import sqlite3
+from report import Report
 
 class Student:
-    # the distance from this student's attendance rate to the average attendance rate
-    def __init__(self, grade, ID, name, days_enrolled, days_not_enrolled, days_present, days_excused, days_not_excused, attendance_rate=1):
-        self.grade = grade
+    
+    reports = []
+
+    def __init__(self, ID, name, email, phone, contact_by_phone): 
         self.ID = ID
         self.name = name
-        self.days_enrolled = days_enrolled
-        self.days_not_enrolled = days_not_enrolled
-        self.days_present = days_present
-        self.days_excused = days_excused
-        self.days_not_excused = days_not_excused
-        #DERIVATIVE VALUES
-        self.total_days_absent = int(days_excused) + int(days_not_excused)
-        self.attendance_distance = 0.0
-        self.attendance_rate = 1.0
+        self.email = email
+        self.phone = phone
+        self.contact_by_phone = 1
 
     def __str__(self):
         return self.name
@@ -29,8 +25,19 @@ class Student:
 
     def add_to_db(self, connection):
         try:
-            connection.execute("CREATE TABLE if not exists students (ID integer primary key, name text, grade integer)")
-            connection.execute("INSERT INTO students VALUES(?, ?, ?)", (int(self.ID), self.name, int(self.grade)))
-            #connection.commit()
+            print(f"Adding {self.name} to the DB...")
+            connection.execute("CREATE TABLE if not exists student \
+                    (ID integer PRIMARY KEY, name text, email text, phone text, contact_by_phone integer)")
+            connection.execute("INSERT INTO student VALUES(?, ?, ?, ?, ?)", 
+                (int(self.ID), 
+                self.name, 
+                self.email,
+                self.phone,
+                self.contact_by_phone))
+            connection.commit()
         except sqlite3.IntegrityError:
             pass
+    
+    def add_report(self, report):
+        self.reports.add(report)
+

@@ -25,9 +25,12 @@ class App:
         self.btn_quit = Button(master, text="QUIT", fg="red", command=master.quit)
         self.btn_quit.grid(row=0, column=0)
 
-        self.btn_pick = Button(master, text="Import Report", fg="green", command=self.import_report)
+        self.btn_pick = Button(master, text="Import Attendance Report", fg="green", command=self.import_report)
         self.btn_pick.grid(row=0, column=1)
 
+        self.btn_import_students = Button(master, text="Import Students Report", fg="green", command=self.import_students)
+        self.btn_import_students.grid(row=0, column=2)
+        
         self.lbl_out = Label(master, text="No reports run...")
         self.lbl_out.grid(row=1, columnspan=2)
        
@@ -46,6 +49,13 @@ class App:
         report = parser.AttendanceReport(filename, target_grade="09", db="attendance_nudger_v1")
         self.students = report.read()
         self.lbl_out.config(text="Report imported! Go ahead and send texts/emails.")
+
+    def import_students(self):
+        filename = askopenfilename()
+        self.lbl_out.config(text=f'Reading students from {filename}')
+        report = parser.StudentListReport(filename, "attendance_nudger_v1.1")
+        self.students = report.read()
+        self.lbl_out.config(text="Students list imported! Go ahead and import a report.")
 
     def send_sms(self):
         num_sms_sent = 0
