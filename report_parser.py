@@ -55,11 +55,9 @@ class AttendanceReport:
         # Specify type where appropriate (for maths later on)
         df[['days_present', 'days_enrolled']] = df[['days_present', 'days_enrolled']].apply(pd.to_numeric)
         # filter down to the specified grade
-        df = df[df['grade'] == self.target_grade]
-        print(df)
+        df = df[df['grade'] == self.target_grade] 
         # compute the attendance rate
-        df['attendance_rate'] = df['days_present']/df['days_enrolled']
-        #print(df) 
+        df['attendance_rate'] = df['days_present']/df['days_enrolled'] 
         return df
 
     def get_average_attendance_rate(self, _students_dataFrame):
@@ -78,19 +76,15 @@ class AttendanceReport:
             students_dataframe = self.get_attendance_rates()
             self.average_attendance_rate = self.get_average_attendance_rate(students_dataframe)
 
-            def update_attendance(row):
-                #print(f"{row} was the row.")
+            def update_attendance(row): 
                 curr_student = self.students[int(row['ID'])]
                 curr_student.attendance_rate = row['attendance_rate']
                 curr_student.attendance_distance = float(curr_student.attendance_rate - self.average_attendance_rate)
             
-            #df = students_dataframe[students_dataframe['grade'] == self.target_grade]
-            #print(df)
-            students_dataframe.apply(update_attendance, axis=1)
-            #print(f"{students[319752].attendance_rate} ({students[319752].attendance_distance})")
+            students_dataframe.apply(update_attendance, axis=1) 
 
             for student_id, student in self.students.items():
                 if student.grade == self.target_grade:
-                    with open(f'_templates/attendance.html', 'r') as template:
+                    with open(f'_templates/attendance.html', 'r') as email_template:
                         with open(f'test_data/{student_id}_attendanceReport.html', 'w') as out:
-                            out.write(student.render(template.read()))
+                            out.write(student.render(email_template.read()))

@@ -9,6 +9,7 @@
 # https://stackoverflow.com/questions/3579568/choosing-a-file-in-python-with-simple-dialog
 # https://docs.python.org/3/library/tkinter.html
 # https://www.effbot.org/tkinterbook/grid.htm
+# https://martin-thoma.com/configuration-files-in-python/
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -29,6 +30,9 @@ class App:
 
         self.lbl_out = Label(master, text="No reports run...")
         self.lbl_out.grid(row=1, columnspan=2)
+        
+        self.btn_send = Button(master, text="Send Text", command=self.send_text)
+        self.btn_send.grid(row=2, columnspan=2)
 
         with open("config.yml", 'r') as ymlfile:
                 self.conf = yaml.load(ymlfile)
