@@ -30,9 +30,12 @@ class App:
 
         self.lbl_out = Label(master, text="No reports run...")
         self.lbl_out.grid(row=1, columnspan=2)
-        
-        self.btn_send = Button(master, text="Send Text", command=self.send_text)
-        self.btn_send.grid(row=2, columnspan=2)
+       
+        self.btn_send_emails = Button(master, text="Send Emails", command=self.send_emails)
+        self.btn_send_emails.grid(row=2, column=0)
+
+        self.btn_send_sms = Button(master, text="Send Texts", command=self.send_sms)
+        self.btn_send_sms.grid(row=2, column=1)
 
         with open("config.yml", 'r') as ymlfile:
                 self.conf = yaml.load(ymlfile)
@@ -41,13 +44,27 @@ class App:
         filename = askopenfilename()
         self.lbl_out.config(text=f'Reading {filename}')
         report = parser.AttendanceReport(filename, target_grade="09", db="attendance_nudger_v1")
-        report.read()
-        self.lbl_out.config(text="Done!")
-        self.btn_send = Button(master, text="Send Text", command=self.send_text)
-        self.btn_send.grid(row=2, columnspan=2)
+        self.students = report.read()
+        self.lbl_out.config(text="Report imported! Go ahead and send texts/emails.")
 
-    def send_text(self):
-        Nudger(self.conf['twilio']['sid'], self.conf['twilio']['auth_token'], self.conf['twilio']['phone'])
+    def send_sms(self):
+        num_sms_sent = 0
+        for student_id, student in self.students.items(): 
+            with open(f'_templates/attendance.txt', 'r') as sms_template:
+                with open(f'test_data/sms/{student_id}_attendanceReport.txt', 'w') as out:
+                    out.write(student.render(sms_template.read()))
+                    num_sms_sent += 1
+        #Nudger(self.conf['twilio']['sid'], self.conf['twilio']['auth_token'], self.conf['twilio']['phone']).send_text(...)
+        return num_sms_sent
+
+    def send_emails(self):
+        num_emails_sent = 0
+        for student_id, student in self.students.items(): 
+            with open(f'_templates/attendance.html', 'r') as email_template:
+                with open(f'test_data/email/{student_id}_attendanceReport.html', 'w') as out:
+                    out.write(student.render(email_template.read()))
+                    num_emails_sent += 1
+        return num_emails_sent
 
 ### MAIN ###
 root = Tk()

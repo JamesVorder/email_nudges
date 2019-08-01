@@ -82,9 +82,4 @@ class AttendanceReport:
                 curr_student.attendance_distance = float(curr_student.attendance_rate - self.average_attendance_rate)
             
             students_dataframe.apply(update_attendance, axis=1) 
-
-            for student_id, student in self.students.items():
-                if student.grade == self.target_grade:
-                    with open(f'_templates/attendance.html', 'r') as email_template:
-                        with open(f'test_data/{student_id}_attendanceReport.html', 'w') as out:
-                            out.write(student.render(email_template.read()))
+            return {k: v for k, v in self.students.items() if v.grade == self.target_grade}
