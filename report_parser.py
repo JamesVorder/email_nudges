@@ -9,14 +9,11 @@ import re
 import pandas as pd
 import numpy as np
 from student import Student
-#import sqlite3
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 class StudentListReport:
     def __init__(self, filename, db):
-        #self.connection = sqlite3.connect(db)
-        #self.cursor = self.connection.cursor()
         self.filename = filename 
         engine = create_engine(f'sqlite:///{db}')
         Session = sessionmaker(bind=engine)
