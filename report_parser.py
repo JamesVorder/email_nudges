@@ -29,25 +29,27 @@ import sqlite3
 
 class StudentListReport:
     def __init__(self, filename, db):
-        self.connection = sqlite3.connect(db)
-        self.cursor = self.connection.cursor()
-        self.filename = filename
-        self.students = {}
+        #self.connection = sqlite3.connect(db)
+        #self.cursor = self.connection.cursor()
+        self.filename = filename 
     
-    def read(self):
-        with open(self.filename, 'r') as incoming:
-            rows = csv.reader(incoming)
+    def read(self, session):
+            # Read all the students in from the
             curr_grade = ""
             for row in rows: 
-                print(row)
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
-                elif re.search("\d{6}.*$", row[0]): 
-                    #new_student = Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10])
-                    new_student = Student(ID=row[0], name=row[2], email=row[3], phone=row[4], contact_by_phone=row[5])
-                    new_student.add_to_db(self.connection)
-                    self.students[int(new_student.ID)] = new_student 
-        self.connection.commit()
+                elif re.search("\d{6}.*$", row[0]):
+                    new_student = Student(id=row[0], name=row[2], email=row[3], phone=row[4], contact_by_phone=row[5])
+                    # Only add new students that are unique
+                    if session.query(Student).filter(Student.id.in_([new_student.id])).all().__len__() == 0
+                        session.add(new_student)
+                    #Else, update all the values
+                    else
+                        our_student = session.query(Student).filter_by(id=new_student.id).first()
+                        our_student.email = new_student.email
+                        our_student.phone = new_student.phone
+                        our_student.contact_by_phone = new_student.contact_by_phone 
 
 class AttendanceReport:
     def __init__(self, filename, db, target_grade="09"):
@@ -56,18 +58,6 @@ class AttendanceReport:
         self.students = {}
         self.filename = filename
         self.target_grade = target_grade
-
-    def extract_students(self, _in): 
-        rows = csv.reader(_in)
-        curr_grade = ""
-        for row in rows: 
-            if re.search("Grade Level:.*$", row[0]):
-                curr_grade = re.search("(\d+)", row[0]).groups()[0]
-            elif re.search("\d{6}.*$", row[0]): 
-                new_student = Student(curr_grade, row[0], row[2], row[6], row[7], row[8], row[9], row[10])
-                new_student.add_to_db(self.connection)
-                self.students[int(new_student.ID)] = new_student 
-            self.connection.commit()
 
     def get_attendance_rates(self):
         # "comprehend" the list of students as a dataframe
@@ -89,10 +79,7 @@ class AttendanceReport:
     def read(self):
         with open(self.filename, 'r') as incoming:
 
-            # read the students out of the csv into an array of Student objects
-            self.extract_students(incoming) 
-            
-            self.connection.close()
+            # TODO: Read reports into the DB appropriately
 
             # parsing the students into a dataframe lets us do computations on them more easily
             students_dataframe = self.get_attendance_rates()

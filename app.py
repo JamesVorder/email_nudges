@@ -10,12 +10,16 @@
 # https://docs.python.org/3/library/tkinter.html
 # https://www.effbot.org/tkinterbook/grid.htm
 # https://martin-thoma.com/configuration-files-in-python/
+# https://docs.sqlalchemy.org/en/13/orm/tutorial.html
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import report_parser as parser
 from nudger import Nudger
 import yaml
+import sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
 
 class App:
     def __init__(self, master):
