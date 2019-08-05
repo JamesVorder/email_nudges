@@ -4,36 +4,27 @@
 # |    |
 # |    |
 # `----'
-# https://www.cyberciti.biz/faq/vim-text-editor-find-and-replace-all-text/
-# https://docs.python.org/3.7/howto/regex.html
-# https://wiki.python.org/moin/Templating
-# https://github.com/defunkt/pystache
-# https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
-# https://www.tutorialspoint.com/python_pandas/python_pandas_comparison_with_sql.htm
-# https://pandas.pydata.org/pandas-docs/stable/
-# https://pandas.pydata.org/pandas-docs/stable/user_guide/cookbook.html#new-columns
-# https://stackoverflow.com/questions/35439613/python-pandas-dividing-column-by-another-column
-# https://www.pythonforbeginners.com/basics/list-comprehensions-in-python
-# https://vim.fandom.com/wiki/Replace_a_word_with_yanked_text
-# https://vim.fandom.com/wiki/Go_to_definition_using_g
-# http://zetcode.com/python/jinja/
-# http://jinja.pocoo.org/docs/2.10/templates/
-# https://www.tutorialspoint.com/sqlite/sqlite_primary_key
-# https://docs.python.org/2/library/sqlite3.html#connection-objects1
 import csv
 import re
 import pandas as pd
 import numpy as np
 from student import Student
-import sqlite3
+#import sqlite3
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 class StudentListReport:
     def __init__(self, filename, db):
         #self.connection = sqlite3.connect(db)
         #self.cursor = self.connection.cursor()
         self.filename = filename 
+        engine = create_engine(f'sqlite:///{db}')
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
     
-    def read(self, session):
+    def read(self):
+        with open(self.filename, 'r') as file_in:
+            rows = csv.reader(file_in)
             # Read all the students in from the
             curr_grade = ""
             for row in rows: 
@@ -42,14 +33,18 @@ class StudentListReport:
                 elif re.search("\d{6}.*$", row[0]):
                     new_student = Student(id=row[0], name=row[2], email=row[3], phone=row[4], contact_by_phone=row[5])
                     # Only add new students that are unique
-                    if session.query(Student).filter(Student.id.in_([new_student.id])).all().__len__() == 0
-                        session.add(new_student)
-                    #Else, update all the values
-                    else
-                        our_student = session.query(Student).filter_by(id=new_student.id).first()
-                        our_student.email = new_student.email
-                        our_student.phone = new_student.phone
-                        our_student.contact_by_phone = new_student.contact_by_phone 
+                    try:
+                        if self.session.query(Student).filter(Student.id.in_([new_student.id])).all().__len__() == 0:
+                            self.session.add(new_student)
+                        #Else, update all the values
+                        else:
+                            our_student = self.session.query(Student).filter_by(id=new_student.id).first()
+                            our_student.email = new_student.email
+                            our_student.phone = new_student.phone
+                            our_student.contact_by_phone = new_student.contact_by_phone 
+                    except:
+                        pass
+        self.session.commit()
 
 class AttendanceReport:
     def __init__(self, filename, db, target_grade="09"):

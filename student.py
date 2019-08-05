@@ -5,8 +5,8 @@ import sqlalchemy
 from sqlalchemy import Column, String, Boolean, Integer
 from sqlalchemy.ext.declarative import declarative_base
 
-def __init__():
-    Base = declarative_base()
+#def __init__():
+Base = declarative_base()
 
 class Student(Base):
     
