@@ -13,7 +13,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError
 from lib.common.base import session_factory
-from lib.db.schemas import Report, Student
+from lib.db.report import Report
+from lib.db.student import Student
 
 class StudentListReport:
      
@@ -83,17 +84,20 @@ class AttendanceReport:
                     else:
                         pass 
 
+            #compute the average attendance rate for all students
+            #render the reports with student.render(average_attendance)
+
             session.commit()
             session.close()
 
             # parsing the students into a dataframe lets us do computations on them more easily
-            students_dataframe = self.get_attendance_rates()
-            self.average_attendance_rate = self.get_average_attendance_rate(students_dataframe)
+            #students_dataframe = self.get_attendance_rates()
+            #self.average_attendance_rate = self.get_average_attendance_rate(students_dataframe)
 
-            def update_attendance(row): 
-                curr_student = self.students[int(row['ID'])]
-                curr_student.attendance_rate = row['attendance_rate']
-                curr_student.attendance_distance = float(curr_student.attendance_rate - self.average_attendance_rate)
-            
-            students_dataframe.apply(update_attendance, axis=1) 
-            return {k: v for k, v in self.students.items() if v.grade == self.target_grade}
+            #def update_attendance(row): 
+            #    curr_student = self.students[int(row['ID'])]
+            #    curr_student.attendance_rate = row['attendance_rate']
+            #    curr_student.attendance_distance = float(curr_student.attendance_rate - self.average_attendance_rate)
+            #
+            #students_dataframe.apply(update_attendance, axis=1) 
+            #return {k: v for k, v in self.students.items() if v.grade == self.target_grade}
