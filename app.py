@@ -51,7 +51,7 @@ class App:
         filename = askopenfilename()
         self.lbl_out.config(text=f'Reading {filename}')
         report = parser.AttendanceReport(filename, target_grade="09", db="attendance_nudger_v1")
-        self.students = report.read()
+        report.read()
         self.lbl_out.config(text="Report imported! Go ahead and send texts/emails.")
 
     def import_students(self):
