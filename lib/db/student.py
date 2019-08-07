@@ -16,3 +16,11 @@ class Student(Base):
     contact_by_phone = Column(Boolean)
 
     reports = relationship("Report", back_populates="student")
+
+    def as_dict(self):
+        return {'id': self.id, \
+                'name': self.name, \
+                'email': self.email, \
+                'phone': self.phone, \
+                'contact_by_phone': self.contact_by_phone}
+

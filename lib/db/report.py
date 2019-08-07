@@ -20,7 +20,14 @@ class Report(Base):
 
     student = relationship("Student", back_populates="reports")
     
+    def as_dict(self):
+        return {'id': self.id, \
+                'grade': self.grade, \
+                'days_enrolled': self.days_enrolled, \
+                'days_present': self.days_present, \
+                'days_excused': self.days_excused, \
+                'days_not_excused': self.days_excused}
+
     #def render(self, _template):
     #    tm = jinja.Template(_template)
     #    return tm.render(student=self)
-

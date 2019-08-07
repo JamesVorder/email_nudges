@@ -73,6 +73,7 @@ class AttendanceReport:
     def read(self):
         students = []
         reports = []
+        students_with_reports = []
         session = session_factory()
         with open(self.filename, 'r') as incoming:
             rows = csv.reader(incoming) 
@@ -87,6 +88,11 @@ class AttendanceReport:
                         student.reports.append(new_report)
                         students.append(student)
                         reports.append(new_report)
+                        merged = dict()
+                        merged.update(student.as_dict())
+                        merged.update(new_report.as_dict())
+                        students_with_reports.append(merged)
+                        print(students_with_reports[len(students_with_reports) - 1])
                     else:
                         pass 
 
@@ -95,11 +101,12 @@ class AttendanceReport:
   
             attendance_rates = [compute_attendance_rate(report) for report in reports] 
             _sum = 0.0
-            average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates)
-            print(f'average_attendance_rate = {average_attendance_rate}')
-            average_attendance_rate /= attendance_rates.__len__()
-            print(f'average_attendance_rate = {average_attendance_rate}')
-
+            average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates) 
+            average_attendance_rate /= attendance_rates.__len__() 
+            
+            
             session.commit()
             session.close()
+
+            return students_with_reports, average_attendance_rate
 
