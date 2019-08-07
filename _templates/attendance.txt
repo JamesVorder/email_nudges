@@ -1,0 +1,12 @@
+Dear parent,
+
+I am pleased to share {{student.name}}'s weekly progress report with you:
+
+Your student's attendance rate was {{ (student.attendance_rate * 100) | round(1) }}%.
+The class's average attendance rate was {{ (student.get_class_average_attendance() * 100)|round(1) }}%.
+The goal for college and career readiness is 94%.
+
+{% if student.attendance_distance < 0 %}
+Your child's average attendance rate of {{(student.attendance_rate * 100)|round(1)}}% is below their classmates' average attendance rate of {{ (student.get_class_average_attendance() * 100)|round(1) }}%. Please help them understand the importance of waking up early and getting to school on time.
+{% endif %}
+

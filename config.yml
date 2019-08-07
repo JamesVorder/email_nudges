@@ -1,0 +1,5 @@
+twilio:
+	sid: string
+	auth_token: string
+	phone: phone number
+
