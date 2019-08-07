@@ -8,10 +8,12 @@ import csv
 import re
 import pandas as pd
 import numpy as np
+from functools import reduce
 from sqlalchemy import create_engine, and_
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, aliased
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.sql import func 
 from lib.common.base import session_factory
 from lib.db.report import Report
 from lib.db.student import Student
@@ -69,9 +71,12 @@ class AttendanceReport:
         return df[['attendance_rate']].mean(axis=0)
 
     def read(self):
+        students = []
+        reports = []
         session = session_factory()
         with open(self.filename, 'r') as incoming:
             rows = csv.reader(incoming) 
+            curr_grade = ""
             for row in rows:
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
@@ -80,24 +85,21 @@ class AttendanceReport:
                     if session.query(Report).filter(and_(Report.student_id == new_report.student_id, Report.days_enrolled == new_report.days_enrolled)).all().__len__() == 0:
                         student = session.query(Student).filter(Student.id == new_report.student_id).first()
                         student.reports.append(new_report)
-                        print(student.reports)
+                        students.append(student)
+                        reports.append(new_report)
                     else:
                         pass 
 
-            #compute the average attendance rate for all students
-            #render the reports with student.render(average_attendance)
+            def compute_attendance_rate(report): 
+                return float(report.days_present) / float(report.days_enrolled)
+  
+            attendance_rates = [compute_attendance_rate(report) for report in reports] 
+            _sum = 0.0
+            average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates)
+            print(f'average_attendance_rate = {average_attendance_rate}')
+            average_attendance_rate /= attendance_rates.__len__()
+            print(f'average_attendance_rate = {average_attendance_rate}')
 
             session.commit()
             session.close()
 
-            # parsing the students into a dataframe lets us do computations on them more easily
-            #students_dataframe = self.get_attendance_rates()
-            #self.average_attendance_rate = self.get_average_attendance_rate(students_dataframe)
-
-            #def update_attendance(row): 
-            #    curr_student = self.students[int(row['ID'])]
-            #    curr_student.attendance_rate = row['attendance_rate']
-            #    curr_student.attendance_distance = float(curr_student.attendance_rate - self.average_attendance_rate)
-            #
-            #students_dataframe.apply(update_attendance, axis=1) 
-            #return {k: v for k, v in self.students.items() if v.grade == self.target_grade}
