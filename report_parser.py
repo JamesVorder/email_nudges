@@ -20,7 +20,7 @@ from lib.db.student import Student
 
 class StudentListReport:
      
-    def __init__(self, filename, db):
+    def __init__(self, filename):
         self.filename = filename 
 
     def read(self):
@@ -49,7 +49,7 @@ class StudentListReport:
         session.close()
 
 class AttendanceReport:
-    def __init__(self, filename, db, target_grade="09"):
+    def __init__(self, filename, target_grade="09"):
         self.filename = filename
         self.target_grade = target_grade
 
