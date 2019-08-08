@@ -4,13 +4,6 @@
 # |    |
 # |    |
 # `----'
-# https://effbot.org/tkinterbook/tkinter-hello-again.htm
-# https://effbot.org/tkinterbook/tkinter-classes.htm
-# https://stackoverflow.com/questions/3579568/choosing-a-file-in-python-with-simple-dialog
-# https://docs.python.org/3/library/tkinter.html
-# https://www.effbot.org/tkinterbook/grid.htm
-# https://martin-thoma.com/configuration-files-in-python/
-# https://docs.sqlalchemy.org/en/13/orm/tutorial.html
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -51,8 +44,7 @@ class App:
         filename = askopenfilename()
         self.lbl_out.config(text=f'Reading {filename}')
         report = parser.AttendanceReport(filename, target_grade="09")
-        self.students_with_reports, self.average_attendance_rate = report.read()
-        report.send(self.students_wih_reports, self.average_attendance_rate)
+        self.students_with_reports, self.average_attendance_rate = report.read() 
         self.lbl_out.config(text="Report imported! Go ahead and send texts/emails.")
 
     def import_students(self):
@@ -63,14 +55,8 @@ class App:
         self.lbl_out.config(text="Students list imported! Go ahead and import a report.")
 
     def send_sms(self):
-        num_sms_sent = 0
-        for student_id, student in self.students.items(): 
-            with open(f'_templates/attendance.txt', 'r') as sms_template:
-                with open(f'test_data/sms/{student_id}_attendanceReport.txt', 'w') as out:
-                    out.write(student.render(sms_template.read()))
-                    num_sms_sent += 1
-        #Nudger(self.conf['twilio']['sid'], self.conf['twilio']['auth_token'], self.conf['twilio']['phone']).send_text(...)
-        return num_sms_sent
+        nudger = Nudger(self.conf['twilio']['sid'], self.conf['twilio']['auth_token'], self.conf['twilio']['phone'])
+        [nudger.send_text(swr, self.average_attendance_rate) for swr in self.students_with_reports if swr['contact_by_phone']]
 
     def send_emails(self):
         num_emails_sent = 0

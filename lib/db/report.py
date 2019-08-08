@@ -1,6 +1,5 @@
-import jinja2 as jinja
 import sqlalchemy
-from sqlalchemy import Column, String, Boolean, Integer, Float, ForeignKey
+from sqlalchemy import Column, String, Boolean, Float, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from ..common.base import Base
@@ -23,11 +22,8 @@ class Report(Base):
     def as_dict(self):
         return {'id': self.id, \
                 'grade': self.grade, \
-                'days_enrolled': self.days_enrolled, \
-                'days_present': self.days_present, \
-                'days_excused': self.days_excused, \
-                'days_not_excused': self.days_excused}
+                'days_enrolled': float(self.days_enrolled), \
+                'days_present': float(self.days_present), \
+                'days_excused': float(self.days_excused), \
+                'days_not_excused': float(self.days_excused)}
 
-    #def render(self, _template):
-    #    tm = jinja.Template(_template)
-    #    return tm.render(student=self)
