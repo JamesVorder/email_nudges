@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	 <head>
 		   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		   <title>Attendance Report -- {{student.name}}</title>
+		   <title>Attendance Report -- {{name}}</title>
 		       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <style>
 	table {
@@ -21,7 +21,7 @@
 </style>
 	 </head>
 	<body>
-		<p>Dear parent, <br><br>I am pleased to share {{student.name}}'s weekly progress report with you:</p>
+		<p>Dear parent, <br><br>I am pleased to share {{name}}'s weekly progress report with you:</p>
 		<br>
 		<table>
 			<thead>
@@ -32,19 +32,19 @@
 				<tr>
 					<th></th>
 					<th>This Week</th>
-					<th>{{student.days_enrolled}} Days So Far</th>
+					<th>{{days_enrolled}} Days So Far</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
 					<td></td>
 					<td>N/A</td>
-					<td>Missed {{student.total_days_absent}}</td>
+					<td>Missed {{total_days_absent}}</td>
 				</tr>
 				<tr>
 					<td>Average</td>
 					<td>N/A</td>
-					<td>{{ (student.get_class_average_attendance() * 100)|round(1) }}%</td>
+					<td>{{ (class_avg_attendance * 100)|round(1) }}%</td>
 				</tr>
 				<tr>
 					<td>College and Career Ready Goal</td>
@@ -54,9 +54,11 @@
 			</tbody>
 		</table>
 	
-		{% if student.attendance_distance < 0 %}
+		{% set attendance_rate = days_present / days_enrolled %}
+		{% set attendance_distance = attendance_rate - class_avg_attendance %}
+		{% if attendance_distance < 0 %}
 		<br>
-		<p>Your child's average attendance rate of {{(student.attendance_rate * 100)|round(1)}}% is below their classmates' average attendance rate of {{ (student.get_class_average_attendance() * 100)|round(1) }}%. Please help them understand the importance of waking up early and getting to school on time.</p>
+		<p>Your child's average attendance rate of {{(attendance_rate * 100)|round(1)}}% is below their classmates' average attendance rate of {{ (class_avg_attendance * 100)|round(1) }}%. Please help them understand the importance of waking up early and getting to school on time.</p>
 		{% endif %}
 		<br>
 		<p>I know that as students get older they tell you less about their work. To help you stay informed, all classwork and homework can be found here: <a href="https://example.com">www.xxx.org</a></p>

@@ -33,8 +33,7 @@ class StudentListReport:
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
                 elif re.search("\d{6}.*$", row[0]):
-                    new_student = Student(id=int(row[0]), name=row[2], email=row[3], phone=row[4], contact_by_phone=bool(row[5]))
-                    # Only add new students that are unique 
+                    new_student = Student(id=int(row[0]), name=row[2], email=row[3], phone=row[4], contact_by_phone=bool(row[5])) 
                     try:
                         if session.query(Student).filter(Student.id == new_student.id).all().__len__() == 0:
                             session.add(new_student) 

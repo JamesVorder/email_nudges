@@ -13,6 +13,7 @@ import yaml
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
+import smtplib
 
 class App:
     def __init__(self, master):
@@ -55,17 +56,17 @@ class App:
         self.lbl_out.config(text="Students list imported! Go ahead and import a report.")
 
     def send_sms(self):
-        nudger = Nudger(self.conf['twilio']['sid'], self.conf['twilio']['auth_token'], self.conf['twilio']['phone'])
+        nudger = Nudger(self.conf)
         [nudger.send_text(swr, self.average_attendance_rate) for swr in self.students_with_reports if swr['contact_by_phone']]
 
     def send_emails(self):
-        num_emails_sent = 0
-        for student_id, student in self.students.items(): 
-            with open(f'_templates/attendance.html', 'r') as email_template:
-                with open(f'test_data/email/{student_id}_attendanceReport.html', 'w') as out:
-                    out.write(student.render(email_template.read()))
-                    num_emails_sent += 1
-        return num_emails_sent
+        server = smtplib.SMTP('smtp.gmail.com:587') 
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
+        #The nudger will authenticate us, then send the emails
+        nudger = Nudger(self.conf, server)
+        [nudger.send_email(swr, self.average_attendance_rate) for swr in self.students_with_reports if not swr['contact_by_phone']]
 
 ### MAIN ###
 root = Tk()
