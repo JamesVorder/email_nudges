@@ -6,8 +6,6 @@
 # `----'
 import csv
 import re
-import pandas as pd
-import numpy as np
 from functools import reduce
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker, aliased
