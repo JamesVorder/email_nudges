@@ -4,8 +4,8 @@
 # |    |
 # |    |
 # `----'
-
-from tkinter import *
+from tkinter import ttk
+from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import report_parser as parser
 from nudger import Nudger
@@ -20,22 +20,22 @@ class App:
 
         master.title("Attendance Nudge-er")
 
-        self.btn_quit = Button(master, text="QUIT", fg="red", command=master.quit)
+        self.btn_quit = ttk.Button(master, text="QUIT", command=master.quit)
         self.btn_quit.grid(row=0, column=0)
 
-        self.btn_pick = Button(master, text="Import Attendance Report", fg="green", command=self.import_report)
+        self.btn_pick = ttk.Button(master, text="Import Attendance Report", command=self.import_report)
         self.btn_pick.grid(row=0, column=1)
 
-        self.btn_import_students = Button(master, text="Import Students Report", fg="green", command=self.import_students)
+        self.btn_import_students = ttk.Button(master, text="Import Students Report", command=self.import_students)
         self.btn_import_students.grid(row=0, column=2)
         
-        self.lbl_out = Label(master, text="No reports run...")
+        self.lbl_out = ttk.Label(master, text="No reports run...")
         self.lbl_out.grid(row=1, columnspan=2)
        
-        self.btn_send_emails = Button(master, text="Send Emails", command=self.send_emails)
+        self.btn_send_emails = ttk.Button(master, text="Send Emails", command=self.send_emails)
         self.btn_send_emails.grid(row=2, column=0)
 
-        self.btn_send_sms = Button(master, text="Send Texts", command=self.send_sms)
+        self.btn_send_sms = ttk.Button(master, text="Send Texts", command=self.send_sms)
         self.btn_send_sms.grid(row=2, column=1)
 
         with open("config.yml", 'r') as ymlfile:
