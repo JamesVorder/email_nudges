@@ -7,8 +7,8 @@
 from tkinter import ttk
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-from lib.common.report_parser import StudentListReport, AttendanceReport
-from lib.common.nudger import Nudger
+from .lib.common.report_parser import StudentListReport, AttendanceReport
+from .lib.common.nudger import Nudger
 import yaml
 import sqlalchemy
 from sqlalchemy import create_engine
