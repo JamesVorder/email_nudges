@@ -69,7 +69,9 @@ class App:
         [nudger.send_email(swr, self.average_attendance_rate) for swr in self.students_with_reports if not swr['contact_by_phone']]
 
 def main(): 
-    root = Tk()
-    app = App(root)
-    root.mainloop()
-    root.destroy()
+    pass
+
+root = Tk()
+app = App(root)
+root.mainloop()
+root.destroy()
