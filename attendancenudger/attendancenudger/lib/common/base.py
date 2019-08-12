@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import yaml
 
-with open("config.yml", 'r') as ymlfile:
+with open("../../config.yml", 'r') as ymlfile:
     conf = yaml.load(ymlfile)
 
 engine = create_engine(f'sqlite:///{conf["db"]["location"]}')
