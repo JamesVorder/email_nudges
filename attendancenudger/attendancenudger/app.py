@@ -68,8 +68,8 @@ class App:
         nudger = Nudger(self.conf, server)
         [nudger.send_email(swr, self.average_attendance_rate) for swr in self.students_with_reports if not swr['contact_by_phone']]
 
-### MAIN ###
-root = Tk()
-app = App(root)
-root.mainloop()
-root.destroy()
+def main(): 
+    root = Tk()
+    app = App(root)
+    root.mainloop()
+    root.destroy()
