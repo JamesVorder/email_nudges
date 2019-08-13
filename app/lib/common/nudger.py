@@ -5,13 +5,14 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 class Nudger:
-    def __init__(self, cfg, email_server):
+    def __init__(self, cfg, email_server=None):
         self.twilio_sms_client = Client(cfg['twilio']['sid'], cfg['twilio']['auth_token'])
         self.twilio_phone_number = cfg['twilio']['phone']
         self.email_server = email_server
         self.email = cfg['gmail']['email']
         self.email_pass = cfg['gmail']['pass']
-        self.email_server.login(self.email,self.email_pass)
+        if self.email_server:
+            self.email_server.login(self.email,self.email_pass)
 
     def render(self, dict_in, template):
         return jinja.Template(template).render(dict_in)

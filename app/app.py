@@ -4,11 +4,12 @@
 # |    |
 # |    |
 # `----'
+import tkinter as tk
 from tkinter import ttk
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-from .lib.common.report_parser import StudentListReport, AttendanceReport
-from .lib.common.nudger import Nudger
+from lib.common.report_parser import StudentListReport, AttendanceReport
+from lib.common.nudger import Nudger
 import yaml
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -20,40 +21,47 @@ class App:
 
         master.title("Attendance Nudge-er")
 
-        self.btn_quit = ttk.Button(master, text="QUIT", command=master.quit)
-        self.btn_quit.grid(row=0, column=0)
+        self.lbl_students_file=ttk.Label(master, text="Students List")
+        self.lbl_students_file.grid(row=0, column=0, sticky=tk.W)
+        self.txt_students_file = ttk.Label(master, relief=tk.SUNKEN, width=30)
+        self.txt_students_file.grid(row=1, column=0)
+        self.btn_students_file = ttk.Button(master, text="...", width=3, command=self.set_students_file)
+        self.btn_students_file.grid(row=1, column=1)
 
-        self.btn_pick = ttk.Button(master, text="Import Attendance Report", command=self.import_report)
-        self.btn_pick.grid(row=0, column=1)
+        self.lbl_report_file = ttk.Label(master, text="Latest Attendance Report")
+        self.lbl_report_file.grid(row=2, column=0, sticky=tk.W)
+        self.txt_report_file = ttk.Label(master, relief=tk.SUNKEN, width=30)
+        self.txt_report_file.grid(row=3, column=0)
+        self.btn_report_file = ttk.Button(master, text="...", width=3, command=self.set_report_file)
+        self.btn_report_file.grid(row=3, column=1)
 
-        self.btn_import_students = ttk.Button(master, text="Import Students Report", command=self.import_students)
-        self.btn_import_students.grid(row=0, column=2)
-        
-        self.lbl_out = ttk.Label(master, text="No reports run...")
-        self.lbl_out.grid(row=1, columnspan=2)
-       
-        self.btn_send_emails = ttk.Button(master, text="Send Emails", command=self.send_emails)
-        self.btn_send_emails.grid(row=2, column=0)
-
-        self.btn_send_sms = ttk.Button(master, text="Send Texts", command=self.send_sms)
-        self.btn_send_sms.grid(row=2, column=1)
+        self.btn_run_report = ttk.Button(master, text="Run Report", width=10, command=self.run_report)
+        self.btn_run_report.grid(row=4)
 
         with open("config.yml", 'r') as ymlfile:
                 self.conf = yaml.load(ymlfile)
 
+    def set_report_file(self):
+        self.report_file = askopenfilename()
+        self.txt_report_file.config(text=self.report_file)
+
+    def set_students_file(self):
+        self.students_file = askopenfilename()
+        self.txt_students_file.config(text=self.students_file)
+
     def import_report(self):
-        filename = askopenfilename()
-        self.lbl_out.config(text=f'Reading {filename}')
+        filename = self.report_file
+        #self.lbl_out.config(text=f'Reading {filename}')
         report = AttendanceReport(filename, target_grade="09")
         self.students_with_reports, self.average_attendance_rate = report.read() 
-        self.lbl_out.config(text="Report imported! Go ahead and send texts/emails.")
+        #self.lbl_out.config(text="Report imported! Go ahead and send texts/emails.")
 
     def import_students(self):
-        filename = askopenfilename()
-        self.lbl_out.config(text=f'Reading students from {filename}')
+        filename = self.students_file
+        #self.lbl_out.config(text=f'Reading students from {filename}')
         report = StudentListReport(filename)
         report.read()
-        self.lbl_out.config(text="Students list imported! Go ahead and import a report.")
+        #self.lbl_out.config(text="Students list imported! Go ahead and import a report.")
 
     def send_sms(self):
         nudger = Nudger(self.conf)
@@ -67,6 +75,12 @@ class App:
         #The nudger will authenticate us, then send the emails
         nudger = Nudger(self.conf, server)
         [nudger.send_email(swr, self.average_attendance_rate) for swr in self.students_with_reports if not swr['contact_by_phone']]
+
+    def run_report(self):
+        self.import_students()
+        self.import_report()
+        self.send_sms()
+        self.send_emails()
 
 def main(): 
     pass
