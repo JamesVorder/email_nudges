@@ -1,9 +1,9 @@
 twilio:
-    sid: AC362122c466551e32ae94d1e88dbc8fbb
-    auth_token: 863e85cc3151f34e616069638d2e1d7a
-    phone: +13203565871
+    sid: 
+    auth_token: 
+    phone: 
 db:
-    location: attendance_nudger_v1.3
+    location: 
 gmail:
-    email: jamesvorder@gmail.com
-    pass: ZZ]BX[|R;O~#ZZn%ct|ho_9g<
+    email: 
+    pass: 
