@@ -15,6 +15,17 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 import smtplib
+import sys
+
+class TextRedirector(object):
+    def __init__(self, widget, tag="stdout"):
+        self.widget = widget
+        self.tag = tag
+
+    def write(self, str):
+        self.widget.configure(state="normal")
+        self.widget.insert("end", str, (self.tag,))
+        self.widget.configure(state="disabled")
 
 class App:
     def __init__(self, master):
@@ -35,26 +46,34 @@ class App:
         self.btn_report_file = ttk.Button(master, text="...", width=3, command=self.set_report_file)
         self.btn_report_file.grid(row=3, column=1)
 
+        self.txt_out = tk.Text(master, width=90, height=30, wrap=tk.WORD)
+        self.txt_out.grid(row=4, column=0)
+        #https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
+        sys.stdout = TextRedirector(self.txt_out, "stdout")
+        sys.stderr = TextRedirector(self.txt_out, "stderr")
+        
         self.btn_run_report = ttk.Button(master, text="Run Report", width=10, command=self.run_report)
-        self.btn_run_report.grid(row=4)
+        self.btn_run_report.grid(row=4, column=1)
 
         with open("config.yml", 'r') as ymlfile:
-                self.conf = yaml.load(ymlfile)
+                self.conf = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
     def set_report_file(self):
         self.report_file = askopenfilename()
         self.txt_report_file.config(text=self.report_file)
+        print("Most recent report selected...")
 
     def set_students_file(self):
         self.students_file = askopenfilename()
         self.txt_students_file.config(text=self.students_file)
+        print("Students file selected...")
 
     def import_report(self):
         filename = self.report_file
-        #self.lbl_out.config(text=f'Reading {filename}')
+        print(f'Reading {filename}')
         report = AttendanceReport(filename, target_grade="09")
         self.students_with_reports, self.average_attendance_rate = report.read() 
-        #self.lbl_out.config(text="Report imported! Go ahead and send texts/emails.")
+        print("Report imported! Go ahead and send texts/emails.")
 
     def import_students(self):
         filename = self.students_file
