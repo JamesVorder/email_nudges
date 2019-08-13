@@ -7,8 +7,8 @@
 from tkinter import ttk
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-import report_parser as parser
-from nudger import Nudger
+from .lib.common.report_parser import StudentListReport, AttendanceReport
+from .lib.common.nudger import Nudger
 import yaml
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -44,14 +44,14 @@ class App:
     def import_report(self):
         filename = askopenfilename()
         self.lbl_out.config(text=f'Reading {filename}')
-        report = parser.AttendanceReport(filename, target_grade="09")
+        report = AttendanceReport(filename, target_grade="09")
         self.students_with_reports, self.average_attendance_rate = report.read() 
         self.lbl_out.config(text="Report imported! Go ahead and send texts/emails.")
 
     def import_students(self):
         filename = askopenfilename()
         self.lbl_out.config(text=f'Reading students from {filename}')
-        report = parser.StudentListReport(filename)
+        report = StudentListReport(filename)
         report.read()
         self.lbl_out.config(text="Students list imported! Go ahead and import a report.")
 
@@ -68,7 +68,9 @@ class App:
         nudger = Nudger(self.conf, server)
         [nudger.send_email(swr, self.average_attendance_rate) for swr in self.students_with_reports if not swr['contact_by_phone']]
 
-### MAIN ###
+def main(): 
+    pass
+
 root = Tk()
 app = App(root)
 root.mainloop()

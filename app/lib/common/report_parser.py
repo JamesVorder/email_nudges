@@ -12,9 +12,9 @@ from sqlalchemy.orm import sessionmaker, aliased
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.sql import func 
-from lib.common.base import session_factory
-from lib.db.report import Report
-from lib.db.student import Student
+from .base import session_factory
+from ..db.report import Report
+from ..db.student import Student
 
 class StudentListReport:
      
