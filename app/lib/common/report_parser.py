@@ -23,6 +23,7 @@ class StudentListReport:
 
     def read(self):
         session = session_factory()
+        new_students = []
         with open(self.filename, 'r') as file_in:
             rows = csv.reader(file_in)
             # Read all the students in from the
@@ -34,7 +35,8 @@ class StudentListReport:
                     new_student = Student(id=int(row[0]), name=row[2], email=row[3], phone=row[4], contact_by_phone=bool(row[5])) 
                     try:
                         if session.query(Student).filter(Student.id == new_student.id).all().__len__() == 0:
-                            session.add(new_student) 
+                            session.add(new_student)
+                            new_students.append(new_student)
                         else:
                             our_student = session.query(Student).filter_by(id=new_student.id).first()
                             our_student.email = new_student.email
@@ -42,8 +44,11 @@ class StudentListReport:
                             our_student.contact_by_phone = new_student.contact_by_phone 
                     except:
                         session.add(new_student)
+                        new_students.append(new_student)
         session.commit()
         session.close()
+
+        return new_students
 
 class AttendanceReport:
     def __init__(self, filename, target_grade="09"):
@@ -98,10 +103,15 @@ class AttendanceReport:
   
             attendance_rates = [compute_attendance_rate(report) for report in reports] 
             _sum = 0.0
-            average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates) 
-            average_attendance_rate /= attendance_rates.__len__() 
-            
-            
+            average_attendance_rate = None
+            try:
+                average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates) 
+                average_attendance_rate /= attendance_rates.__len__() 
+            except:
+                #Should I print some kind of error here?
+                #There weren't any new records in that report. Have you run it already?
+                pass
+             
             session.commit()
             session.close()
 

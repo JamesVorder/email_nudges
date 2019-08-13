@@ -72,15 +72,14 @@ class App:
         filename = self.report_file
         print(f'Reading {filename}')
         report = AttendanceReport(filename, target_grade="09")
-        self.students_with_reports, self.average_attendance_rate = report.read() 
-        print("Report imported! Go ahead and send texts/emails.")
+        self.students_with_reports, self.average_attendance_rate = report.read()
+        print(f"Added {len(self.students_with_reports)} reports...\nAverage reported attendance was {self.average_attendance_rate}...")
 
     def import_students(self):
-        filename = self.students_file
-        #self.lbl_out.config(text=f'Reading students from {filename}')
+        filename = self.students_file 
         report = StudentListReport(filename)
-        report.read()
-        #self.lbl_out.config(text="Students list imported! Go ahead and import a report.")
+        new_students = report.read()
+        print(f"Added {len(new_students)} students...")
 
     def send_sms(self):
         nudger = Nudger(self.conf)
