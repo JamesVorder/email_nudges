@@ -32,21 +32,24 @@ class App:
 
         master.title("Attendance Nudge-er")
 
+        output_width = 90
+        output_height = 30
+
         self.lbl_students_file=ttk.Label(master, text="Students List")
         self.lbl_students_file.grid(row=0, column=0, sticky=tk.W)
-        self.txt_students_file = ttk.Label(master, relief=tk.SUNKEN, width=30)
+        self.txt_students_file = ttk.Label(master, relief=tk.SUNKEN, width=output_width)
         self.txt_students_file.grid(row=1, column=0)
         self.btn_students_file = ttk.Button(master, text="...", width=3, command=self.set_students_file)
         self.btn_students_file.grid(row=1, column=1)
 
         self.lbl_report_file = ttk.Label(master, text="Latest Attendance Report")
         self.lbl_report_file.grid(row=2, column=0, sticky=tk.W)
-        self.txt_report_file = ttk.Label(master, relief=tk.SUNKEN, width=30)
+        self.txt_report_file = ttk.Label(master, relief=tk.SUNKEN, width=output_width)
         self.txt_report_file.grid(row=3, column=0)
         self.btn_report_file = ttk.Button(master, text="...", width=3, command=self.set_report_file)
         self.btn_report_file.grid(row=3, column=1)
 
-        self.txt_out = tk.Text(master, width=90, height=30, wrap=tk.WORD)
+        self.txt_out = tk.Text(master, width=output_width, height=output_height, wrap=tk.WORD)
         self.txt_out.grid(row=4, column=0)
         #https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
         sys.stdout = TextRedirector(self.txt_out, "stdout")
@@ -83,7 +86,9 @@ class App:
 
     def send_sms(self):
         nudger = Nudger(self.conf)
-        [nudger.send_text(swr, self.average_attendance_rate) for swr in self.students_with_reports if swr['contact_by_phone']]
+        sent = []
+        [sent.append(nudger.send_text(swr, self.average_attendance_rate)) for swr in self.students_with_reports if swr['contact_by_phone']]
+        print(f"Sent {len(sent)} text messages...")
 
     def send_emails(self):
         server = smtplib.SMTP('smtp.gmail.com:587') 
@@ -92,13 +97,17 @@ class App:
         server.ehlo()
         #The nudger will authenticate us, then send the emails
         nudger = Nudger(self.conf, server)
-        [nudger.send_email(swr, self.average_attendance_rate) for swr in self.students_with_reports if not swr['contact_by_phone']]
+        sent = []
+        [sent.append(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
+        server.quit()
+        print(f"Sent {len(sent)} emails...")
 
     def run_report(self):
         self.import_students()
         self.import_report()
         self.send_sms()
         self.send_emails()
+        print(f"Done!")
 
 def main(): 
     pass

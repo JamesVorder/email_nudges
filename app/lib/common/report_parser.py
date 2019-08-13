@@ -94,7 +94,7 @@ class AttendanceReport:
                         merged.update(student.as_dict())
                         merged.update(new_report.as_dict())
                         students_with_reports.append(merged)
-                        print(students_with_reports[len(students_with_reports) - 1])
+                        #print(students_with_reports[len(students_with_reports) - 1])
                     else:
                         pass 
 

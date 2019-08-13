@@ -49,4 +49,5 @@ class Nudger:
                 msg.attach(part2)
 
                 self.email_server.sendmail(_from, _to, msg.as_string()) 
+        return 1
     
