@@ -6,17 +6,15 @@
 # `----'
 import csv
 import re
-import pandas as pd
-import numpy as np
 from functools import reduce
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker, aliased
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.sql import func 
-from lib.common.base import session_factory
-from lib.db.report import Report
-from lib.db.student import Student
+from .base import session_factory
+from ..db.report import Report
+from ..db.student import Student
 
 class StudentListReport:
      
@@ -25,6 +23,7 @@ class StudentListReport:
 
     def read(self):
         session = session_factory()
+        new_students = []
         with open(self.filename, 'r') as file_in:
             rows = csv.reader(file_in)
             # Read all the students in from the
@@ -33,11 +32,11 @@ class StudentListReport:
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
                 elif re.search("\d{6}.*$", row[0]):
-                    new_student = Student(id=int(row[0]), name=row[2], email=row[3], phone=row[4], contact_by_phone=bool(row[5]))
-                    # Only add new students that are unique 
+                    new_student = Student(id=int(row[0]), name=row[2], email=row[3], phone=row[4], contact_by_phone=bool(row[5])) 
                     try:
                         if session.query(Student).filter(Student.id == new_student.id).all().__len__() == 0:
-                            session.add(new_student) 
+                            session.add(new_student)
+                            new_students.append(new_student)
                         else:
                             our_student = session.query(Student).filter_by(id=new_student.id).first()
                             our_student.email = new_student.email
@@ -45,8 +44,11 @@ class StudentListReport:
                             our_student.contact_by_phone = new_student.contact_by_phone 
                     except:
                         session.add(new_student)
+                        new_students.append(new_student)
         session.commit()
         session.close()
+
+        return new_students
 
 class AttendanceReport:
     def __init__(self, filename, target_grade="09"):
@@ -92,7 +94,7 @@ class AttendanceReport:
                         merged.update(student.as_dict())
                         merged.update(new_report.as_dict())
                         students_with_reports.append(merged)
-                        print(students_with_reports[len(students_with_reports) - 1])
+                        #print(students_with_reports[len(students_with_reports) - 1])
                     else:
                         pass 
 
@@ -101,10 +103,15 @@ class AttendanceReport:
   
             attendance_rates = [compute_attendance_rate(report) for report in reports] 
             _sum = 0.0
-            average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates) 
-            average_attendance_rate /= attendance_rates.__len__() 
-            
-            
+            average_attendance_rate = None
+            try:
+                average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates) 
+                average_attendance_rate /= attendance_rates.__len__() 
+            except:
+                #Should I print some kind of error here?
+                #There weren't any new records in that report. Have you run it already?
+                pass
+             
             session.commit()
             session.close()
 

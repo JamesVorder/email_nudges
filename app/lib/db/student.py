@@ -1,5 +1,5 @@
 import jinja2 as jinja
-import sqlalchemy
+#import sqlalchemy
 from sqlalchemy import Column, String, Boolean, Integer, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
