@@ -9,7 +9,7 @@ class Student(Base):
     
     __tablename__ = "student"
 
-    id = Column(Integer, primary_key=True)
+    student_id = Column(Integer, index=True, primary_key=True)
     name = Column(String)
     email = Column(String)
     phone = Column(String)

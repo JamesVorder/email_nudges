@@ -8,19 +8,19 @@ class Report(Base):
 
     __tablename__ = "reports"
 
-    id = Column(Integer, primary_key=True)
+    report_id = Column(Integer, index=True, primary_key=True)
     grade = Column(Integer)
     days_enrolled = Column(Float)
     days_present = Column(Float)
     days_excused = Column(Float)
     days_not_excused = Column(Float) 
 
-    student_id = Column(Integer, ForeignKey('student.id')) 
+    report_student_id = Column(Integer, ForeignKey('student.student_id')) 
 
     student = relationship("Student", back_populates="reports")
     
     def as_dict(self):
-        return {'id': self.id, \
+        return {'report_id': self.id, \
                 'grade': self.grade, \
                 'days_enrolled': float(self.days_enrolled), \
                 'days_present': float(self.days_present), \
