@@ -2,8 +2,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import yaml
+import importlib.resources as pkg_resources
+from attendancenudger import config
 
-with open("config.yml", 'r') as ymlfile:
+with pkg_resources.open_text(config, "config.yml") as ymlfile:
     conf = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
 engine = create_engine(f'sqlite:///{conf["db"]["location"]}')

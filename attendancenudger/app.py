@@ -16,6 +16,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 import smtplib
 import sys
+import importlib.resources as pkg_resources
+from . import config
 
 class TextRedirector(object):
     def __init__(self, widget, tag="stdout"):
@@ -58,7 +60,7 @@ class App:
         self.btn_run_report = ttk.Button(master, text="Run Report", width=10, command=self.run_report)
         self.btn_run_report.grid(row=4, column=1)
 
-        with open("config.yml", 'r') as ymlfile:
+        with pkg_resources.open_text(config, "config.yml") as ymlfile:
                 self.conf = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
     def set_report_file(self):

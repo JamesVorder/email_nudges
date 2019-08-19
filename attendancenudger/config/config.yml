@@ -1,0 +1,9 @@
+twilio:
+    sid: 
+    auth_token: 
+    phone: 
+db:
+    location: 
+gmail:
+    email: 
+    pass: 
