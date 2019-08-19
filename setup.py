@@ -31,7 +31,8 @@ setup(
             'iOS', 'android',
             'django'
         ]
-    ),
+    ), 
+    package_data={'':['*.txt', '_templates/*.html', '*.yml']},
     classifiers=[
         'Development Status :: 1 - Planning',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
@@ -51,41 +52,41 @@ setup(
         'SQLAlchemy==1.3.6',
         'twilio==6.29.3',
         'urllib3==1.24.3',
-        ],
-    options={
-        'app': {
-            'formal_name': 'Attendance Nudger',
-            'bundle': 'com.mindthegap'
-        },
+        ], 
+    #options={
+    #    'app': {
+    #        'formal_name': 'Attendance Nudger',
+    #        'bundle': 'com.mindthegap'
+    #    },
 
-        # Desktop/laptop deployments
-        'macos': {
-            'app_requires': [
-            ]
-        },
-        'linux': {
-            'app_requires': [ 
-                ]
-        },
-        'windows': {
-            'app_requires': [
-            ]
-        },
+    #    # Desktop/laptop deployments
+    #    'macos': {
+    #        'app_requires': [
+    #        ]
+    #    },
+    #    'linux': {
+    #        'app_requires': [ 
+    #            ]
+    #    },
+    #    'windows': {
+    #        'app_requires': [
+    #        ]
+    #    },
 
-        # Mobile deployments
-        'ios': {
-            'app_requires': [
-            ]
-        },
-        'android': {
-            'app_requires': [
-            ]
-        },
+    #    # Mobile deployments
+    #    'ios': {
+    #        'app_requires': [
+    #        ]
+    #    },
+    #    'android': {
+    #        'app_requires': [
+    #        ]
+    #    },
 
-        # Web deployments
-        'django': {
-            'app_requires': [
-            ]
-        },
-    }
+    #    # Web deployments
+    #    'django': {
+    #        'app_requires': [
+    #        ]
+    #    },
+    #}
 )
