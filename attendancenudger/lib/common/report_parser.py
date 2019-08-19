@@ -32,13 +32,13 @@ class StudentListReport:
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
                 elif re.search("\d{6}.*$", row[0]):
-                    new_student = Student(id=int(row[0]), name=row[2], email=row[3], phone=row[4], contact_by_phone=bool(row[5])) 
+                    new_student = Student(student_id=int(row[0]), name=row[2], email=row[3], phone=row[4], contact_by_phone=bool(row[5])) 
                     try:
-                        if session.query(Student).filter(Student.id == new_student.id).all().__len__() == 0:
+                        if session.query(Student).filter(Student.student_id == new_student.student_id).all().__len__() == 0:
                             session.add(new_student)
                             new_students.append(new_student)
                         else:
-                            our_student = session.query(Student).filter_by(id=new_student.id).first()
+                            our_student = session.query(Student).filter_by(student_id=new_student.student_id).first()
                             our_student.email = new_student.email
                             our_student.phone = new_student.phone
                             our_student.contact_by_phone = new_student.contact_by_phone 
@@ -84,9 +84,9 @@ class AttendanceReport:
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
                 elif re.search("\d{6}.*$", row[0]) and curr_grade == "09":
-                    new_report = Report(student_id = row[0], grade = curr_grade, days_enrolled = row[6], days_present = row[8], days_excused=row[9], days_not_excused = row[10])  
-                    if session.query(Report).filter(and_(Report.student_id == new_report.student_id, Report.days_enrolled == new_report.days_enrolled)).all().__len__() == 0:
-                        student = session.query(Student).filter(Student.id == new_report.student_id).first()
+                    new_report = Report(report_student_id = row[0], grade = curr_grade, days_enrolled = row[6], days_present = row[8], days_excused=row[9], days_not_excused = row[10])  
+                    if session.query(Report).filter(and_(Report.report_student_id == new_report.report_student_id, Report.days_enrolled == new_report.days_enrolled)).all().__len__() == 0:
+                        student = session.query(Student).filter(Student.student_id == new_report.report_student_id).first()
                         student.reports.append(new_report)
                         students.append(student)
                         reports.append(new_report)

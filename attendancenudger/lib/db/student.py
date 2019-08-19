@@ -9,7 +9,7 @@ class Student(Base):
     
     __tablename__ = "student"
 
-    id = Column(Integer, primary_key=True)
+    student_id = Column(Integer, index=True, primary_key=True)
     name = Column(String)
     email = Column(String)
     phone = Column(String)
@@ -18,7 +18,7 @@ class Student(Base):
     reports = relationship("Report", back_populates="student")
 
     def as_dict(self):
-        return {'id': self.id, \
+        return {'student_id': self.student_id, \
                 'name': self.name, \
                 'email': self.email, \
                 'phone': self.phone, \
