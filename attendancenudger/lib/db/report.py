@@ -20,7 +20,7 @@ class Report(Base):
     student = relationship("Student", back_populates="reports")
     
     def as_dict(self):
-        return {'report_id': self.id, \
+        return {'report_id': self.report_id, \
                 'grade': self.grade, \
                 'days_enrolled': float(self.days_enrolled), \
                 'days_present': float(self.days_present), \
