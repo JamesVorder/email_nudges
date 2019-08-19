@@ -3,6 +3,8 @@ from twilio.rest import Client
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import importlib.resources as pkg_resources
+from attendancenudger import _templates as templates
 
 class Nudger:
     def __init__(self, cfg, email_server=None):
@@ -18,7 +20,7 @@ class Nudger:
         return jinja.Template(template).render(dict_in)
 
     def send_text(self, dict_in, avg_att):
-        with open(f'_templates/attendance.txt', 'r') as sms_template:
+        with pkg_resources.read_text(templates, 'attendance.txt') as sms_template:
             avg_att_dict = {'class_avg_attendance': avg_att}
             dict_in.update(avg_att_dict) 
             message = self.twilio_sms_client.messages.create(body=self.render(dict_in, sms_template.read()), \
@@ -27,8 +29,8 @@ class Nudger:
         return message.sid
 
     def send_email(self, dict_in, avg_att):
-        with open(f'_templates/attendance.html', 'r') as html_template:
-            with open(f'_templates/attendance.txt', 'r') as plaintext_template:
+        with pkg_resources.read_text(templates, 'attendance.html') as html_template:
+            with pkg_resources.read_text(templates, 'attendance.txt') as plaintext_template:
                 avg_att_dict = {'class_avg_attendance': avg_att}
                 dict_in.update(avg_att_dict)
                 _to = dict_in['email']
