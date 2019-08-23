@@ -1,9 +1,3 @@
-# ......
-# :.  .:
-# .'  '.
-# |    |
-# |    |
-# `----'
 import tkinter as tk
 from tkinter import ttk
 from tkinter import Tk
@@ -18,6 +12,8 @@ import smtplib
 import sys
 import importlib.resources as pkg_resources
 from . import config
+from .lib.common.base import setup_logging
+import logging
 
 class TextRedirector(object):
     def __init__(self, widget, tag="stdout"):
@@ -25,13 +21,23 @@ class TextRedirector(object):
         self.tag = tag
 
     def write(self, str):
+        self.logger.debug(f"TextRedirector.write(self, {str}")
         self.widget.configure(state="normal")
         self.widget.insert("end", str, (self.tag,))
         self.widget.configure(state="disabled")
+        self.logger.info(str)
 
 class App:
     def __init__(self, master):
+        
+        with pkg_resources.open_text(config, "config.yml") as ymlfile:
+                self.conf = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
+        setup_logging()
+        self.logger = logging.getLogger(__name__) 
+        self.logger.info("Hello, world!")
+
+        
         master.title("Attendance Nudge-er")
 
         output_width = 90
@@ -53,16 +59,16 @@ class App:
 
         self.txt_out = tk.Text(master, width=output_width, height=output_height, wrap=tk.WORD)
         self.txt_out.grid(row=4, column=0)
-        #https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
-        sys.stdout = TextRedirector(self.txt_out, "stdout")
-        sys.stderr = TextRedirector(self.txt_out, "stderr")
         
         self.btn_run_report = ttk.Button(master, text="Run Report", width=10, command=self.run_report)
         self.btn_run_report.grid(row=4, column=1)
 
-        with pkg_resources.open_text(config, "config.yml") as ymlfile:
-                self.conf = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
+        #OUTPUT WINDOW TEXT REDIRECT
+        #https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
+        sys.stdout = TextRedirector(self.txt_out, "stdout")
+        sys.stderr = TextRedirector(self.txt_out, "stderr")
+        
     def set_report_file(self):
         self.report_file = askopenfilename()
         self.txt_report_file.config(text=self.report_file)

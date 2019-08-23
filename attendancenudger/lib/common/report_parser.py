@@ -1,9 +1,3 @@
-# ......
-# :.  .:
-# .'  '.
-# |    |
-# |    |
-# `----'
 import csv
 import re
 from functools import reduce
@@ -15,11 +9,13 @@ from sqlalchemy.sql import func
 from .base import session_factory
 from ..db.report import Report
 from ..db.student import Student
+import logging
 
 class StudentListReport:
      
     def __init__(self, filename):
         self.filename = filename 
+        self.logger = logging.getLogger(__name__)
 
     def read(self):
         session = session_factory()
