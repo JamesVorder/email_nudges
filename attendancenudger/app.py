@@ -19,13 +19,15 @@ class TextRedirector(object):
     def __init__(self, widget, tag="stdout"):
         self.widget = widget
         self.tag = tag
+        self.logger = logging.getLogger(__name__)
 
-    def write(self, str):
-        self.logger.debug(f"TextRedirector.write(self, {str}")
-        self.widget.configure(state="normal")
-        self.widget.insert("end", str, (self.tag,))
-        self.widget.configure(state="disabled")
-        self.logger.info(str)
+    def write(self, _str):
+        try:
+            self.widget.configure(state="normal")
+            self.widget.insert("end", _str, (self.tag,))
+            self.widget.configure(state="disabled")
+        except:
+            pass
 
 class App:
     def __init__(self, master):
@@ -33,8 +35,6 @@ class App:
         with pkg_resources.open_text(config, "config.yml") as ymlfile:
                 self.conf = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
-        setup_logging()
-        self.logger = logging.getLogger(__name__)  
 
         
         try:
@@ -66,8 +66,12 @@ class App:
 
             #OUTPUT WINDOW TEXT REDIRECT
             #https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
-            sys.stdout = TextRedirector(self.txt_out, "stdout")
-            sys.stderr = TextRedirector(self.txt_out, "stderr")
+            sys.stdout = TextRedirector(self.txt_out, "sys.stdout")
+            sys.stderr = TextRedirector(self.txt_out, "sys.stderr")
+
+            setup_logging()
+            self.logger = logging.getLogger(__name__)  
+
         except:
             self.logger.exception("There was a problem initializing the UI.")
         
@@ -75,7 +79,7 @@ class App:
         try:
             self.report_file = askopenfilename()
             self.txt_report_file.config(text=self.report_file)
-            print("Most recent report selected...")
+            self.logger.info("Most recent report selected...")
         except:
             self.logger.exception("There was a problem selecting the report file.")
 
@@ -83,17 +87,17 @@ class App:
         try: 
             self.students_file = askopenfilename()
             self.txt_students_file.config(text=self.students_file)
-            print("Students file selected...")
+            self.logger.info("Students file selected...")
         except:
             self.logger.exception("There was a problem selecting the students file.")
 
     def import_report(self):
         try:
             filename = self.report_file
-            print(f'Reading {filename}')
+            self.logger.info(f'Reading {filename}')
             report = AttendanceReport(filename, target_grade="09")
             self.students_with_reports, self.average_attendance_rate = report.read()
-            print(f"Added {len(self.students_with_reports)} reports...\nAverage reported attendance was {self.average_attendance_rate}...")
+            self.logger.info(f"Added {len(self.students_with_reports)} reports...\nAverage reported attendance was {self.average_attendance_rate}...")
         except:
             self.logger.exception("There was a problem importing the attendance report.")
 
@@ -102,7 +106,7 @@ class App:
             filename = self.students_file 
             report = StudentListReport(filename)
             new_students = report.read()
-            print(f"Added {len(new_students)} students...")
+            self.logger.info(f"Added {len(new_students)} students...")
         except:
             self.logger.exception("There was a problem importing the students list.")
 
@@ -111,7 +115,7 @@ class App:
             nudger = Nudger(self.conf)
             sent = []
             [sent.append(nudger.send_text(swr, self.average_attendance_rate)) for swr in self.students_with_reports if swr['contact_by_phone']]
-            print(f"Sent {len(sent)} text messages...")
+            self.logger.info(f"Sent {len(sent)} text messages...")
         except:
             self.logger.exception("There was a problem sending the text messages.")
 
@@ -126,16 +130,16 @@ class App:
             sent = []
             [sent.append(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
             server.quit()
-            print(f"Sent {len(sent)} emails...")
+            self.logger.info(f"Sent {len(sent)} emails...")
         except:
             self.logger.exception("There was a problem sending the emails.")
 
     def run_report(self):
         self.import_students()
-        self.import_report()
-        self.send_sms()
-        self.send_emails()
-        print(f"Done!")
+        #self.import_report()
+        #self.send_sms()
+        #self.send_emails()
+        self.logger.info(f"Done!")
 
 def main(): 
     self.logger.debug("attendancenudger.app.main touched.")

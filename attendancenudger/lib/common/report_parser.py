@@ -16,33 +16,47 @@ class StudentListReport:
     def __init__(self, filename):
         self.filename = filename 
         self.logger = logging.getLogger(__name__)
+        self.logger.debug(f"Initialized StudentListReport with {self.filename}")
 
     def read(self):
-        session = session_factory()
+        try:
+            session = session_factory()
+        except:
+            self.logger.exception("There was a problem initializing the DB session.")
+
         new_students = []
         with open(self.filename, 'r') as file_in:
             rows = csv.reader(file_in)
             # Read all the students in from the
             curr_grade = ""
-            for row in rows: 
+            for row in rows:
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
+                    self.logger.debug(f"curr_grad={curr_grade}")
                 elif re.search("\d{6}.*$", row[0]):
                     new_student = Student(student_id=int(row[0]), name=row[2], email=row[3], phone=row[4], contact_by_phone=bool(row[5])) 
+                    self.logger.debug(f"new_student = {str(new_student)}")
                     try:
                         if session.query(Student).filter(Student.student_id == new_student.student_id).all().__len__() == 0:
+                            self.logger.debug(f"Didnt find any existing students with student_id = {new_student.student_id}")
                             session.add(new_student)
                             new_students.append(new_student)
+                            self.logger.debug(f"Added {repr(new_student)} to session and new_students[{len(new_students) - 1}]")
                         else:
+                            self.logger.debug(f"Found an existing student with student_id = {new_student.student_id}")
                             our_student = session.query(Student).filter_by(student_id=new_student.student_id).first()
                             our_student.email = new_student.email
                             our_student.phone = new_student.phone
                             our_student.contact_by_phone = new_student.contact_by_phone 
+                            self.logger.debug(f"Updated fields for existing student {new_student.student_id}")
                     except:
+                        self.logger.debug(f"This must have been the first student added to the DB...")
                         session.add(new_student)
                         new_students.append(new_student)
+                        self.logger.debug(f"Added {repr(new_student)} to session and new_students[{len(new_students) - 1}]")
         session.commit()
         session.close()
+        self.logger.debug(f"Closed the session ({repr(session)})")
 
         return new_students
 
