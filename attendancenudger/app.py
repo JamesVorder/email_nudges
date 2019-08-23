@@ -34,81 +34,101 @@ class App:
                 self.conf = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
         setup_logging()
-        self.logger = logging.getLogger(__name__) 
-        self.logger.info("Hello, world!")
+        self.logger = logging.getLogger(__name__)  
 
         
-        master.title("Attendance Nudge-er")
+        try:
+            master.title("Attendance Nudge-er")
 
-        output_width = 90
-        output_height = 30
+            output_width = 90
+            output_height = 30
 
-        self.lbl_students_file=ttk.Label(master, text="Students List")
-        self.lbl_students_file.grid(row=0, column=0, sticky=tk.W)
-        self.txt_students_file = ttk.Label(master, relief=tk.SUNKEN, width=output_width)
-        self.txt_students_file.grid(row=1, column=0)
-        self.btn_students_file = ttk.Button(master, text="...", width=3, command=self.set_students_file)
-        self.btn_students_file.grid(row=1, column=1)
+            self.lbl_students_file=ttk.Label(master, text="Students List")
+            self.lbl_students_file.grid(row=0, column=0, sticky=tk.W)
+            self.txt_students_file = ttk.Label(master, relief=tk.SUNKEN, width=output_width)
+            self.txt_students_file.grid(row=1, column=0)
+            self.btn_students_file = ttk.Button(master, text="...", width=3, command=self.set_students_file)
+            self.btn_students_file.grid(row=1, column=1)
 
-        self.lbl_report_file = ttk.Label(master, text="Latest Attendance Report")
-        self.lbl_report_file.grid(row=2, column=0, sticky=tk.W)
-        self.txt_report_file = ttk.Label(master, relief=tk.SUNKEN, width=output_width)
-        self.txt_report_file.grid(row=3, column=0)
-        self.btn_report_file = ttk.Button(master, text="...", width=3, command=self.set_report_file)
-        self.btn_report_file.grid(row=3, column=1)
+            self.lbl_report_file = ttk.Label(master, text="Latest Attendance Report")
+            self.lbl_report_file.grid(row=2, column=0, sticky=tk.W)
+            self.txt_report_file = ttk.Label(master, relief=tk.SUNKEN, width=output_width)
+            self.txt_report_file.grid(row=3, column=0)
+            self.btn_report_file = ttk.Button(master, text="...", width=3, command=self.set_report_file)
+            self.btn_report_file.grid(row=3, column=1)
 
-        self.txt_out = tk.Text(master, width=output_width, height=output_height, wrap=tk.WORD)
-        self.txt_out.grid(row=4, column=0)
-        
-        self.btn_run_report = ttk.Button(master, text="Run Report", width=10, command=self.run_report)
-        self.btn_run_report.grid(row=4, column=1)
+            self.txt_out = tk.Text(master, width=output_width, height=output_height, wrap=tk.WORD)
+            self.txt_out.grid(row=4, column=0)
+            
+            self.btn_run_report = ttk.Button(master, text="Run Report", width=10, command=self.run_report)
+            self.btn_run_report.grid(row=4, column=1)
 
 
-        #OUTPUT WINDOW TEXT REDIRECT
-        #https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
-        sys.stdout = TextRedirector(self.txt_out, "stdout")
-        sys.stderr = TextRedirector(self.txt_out, "stderr")
+            #OUTPUT WINDOW TEXT REDIRECT
+            #https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
+            sys.stdout = TextRedirector(self.txt_out, "stdout")
+            sys.stderr = TextRedirector(self.txt_out, "stderr")
+        except:
+            self.logger.exception("There was a problem initializing the UI.")
         
     def set_report_file(self):
-        self.report_file = askopenfilename()
-        self.txt_report_file.config(text=self.report_file)
-        print("Most recent report selected...")
+        try:
+            self.report_file = askopenfilename()
+            self.txt_report_file.config(text=self.report_file)
+            print("Most recent report selected...")
+        except:
+            self.logger.exception("There was a problem selecting the report file.")
 
     def set_students_file(self):
-        self.students_file = askopenfilename()
-        self.txt_students_file.config(text=self.students_file)
-        print("Students file selected...")
+        try: 
+            self.students_file = askopenfilename()
+            self.txt_students_file.config(text=self.students_file)
+            print("Students file selected...")
+        except:
+            self.logger.exception("There was a problem selecting the students file.")
 
     def import_report(self):
-        filename = self.report_file
-        print(f'Reading {filename}')
-        report = AttendanceReport(filename, target_grade="09")
-        self.students_with_reports, self.average_attendance_rate = report.read()
-        print(f"Added {len(self.students_with_reports)} reports...\nAverage reported attendance was {self.average_attendance_rate}...")
+        try:
+            filename = self.report_file
+            print(f'Reading {filename}')
+            report = AttendanceReport(filename, target_grade="09")
+            self.students_with_reports, self.average_attendance_rate = report.read()
+            print(f"Added {len(self.students_with_reports)} reports...\nAverage reported attendance was {self.average_attendance_rate}...")
+        except:
+            self.logger.exception("There was a problem importing the attendance report.")
 
     def import_students(self):
-        filename = self.students_file 
-        report = StudentListReport(filename)
-        new_students = report.read()
-        print(f"Added {len(new_students)} students...")
+        try:
+            filename = self.students_file 
+            report = StudentListReport(filename)
+            new_students = report.read()
+            print(f"Added {len(new_students)} students...")
+        except:
+            self.logger.exception("There was a problem importing the students list.")
 
     def send_sms(self):
-        nudger = Nudger(self.conf)
-        sent = []
-        [sent.append(nudger.send_text(swr, self.average_attendance_rate)) for swr in self.students_with_reports if swr['contact_by_phone']]
-        print(f"Sent {len(sent)} text messages...")
+        try:
+            nudger = Nudger(self.conf)
+            sent = []
+            [sent.append(nudger.send_text(swr, self.average_attendance_rate)) for swr in self.students_with_reports if swr['contact_by_phone']]
+            print(f"Sent {len(sent)} text messages...")
+        except:
+            self.logger.exception("There was a problem sending the text messages.")
 
     def send_emails(self):
-        server = smtplib.SMTP('smtp.gmail.com:587') 
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        #The nudger will authenticate us, then send the emails
-        nudger = Nudger(self.conf, server)
-        sent = []
-        [sent.append(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
-        server.quit()
-        print(f"Sent {len(sent)} emails...")
+        try:
+            server = smtplib.SMTP('smtp.gmail.com:587') 
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            #The nudger will authenticate us, then send the emails
+            nudger = Nudger(self.conf, server)
+            sent = []
+            [sent.append(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
+            server.quit()
+            print(f"Sent {len(sent)} emails...")
+        except:
+            self.logger.exception("There was a problem sending the emails.")
 
     def run_report(self):
         self.import_students()
@@ -118,6 +138,7 @@ class App:
         print(f"Done!")
 
 def main(): 
+    self.logger.debug("attendancenudger.app.main touched.")
     pass
 
 root = Tk()
