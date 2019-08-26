@@ -30,11 +30,12 @@ class StudentListReport:
             rows = csv.reader(file_in)
             # Read all the students in from the
             curr_grade = ""
+            #self.logger.info(f"Reading {sum(1 for row in rows)} students from file.")
+            #rows.seek(0)
+            i = 0
             for row in rows:
-                if re.search("Grade Level:.*$", row[0]):
-                    curr_grade = re.search("(\d+)", row[0]).groups()[0]
-                    self.logger.debug(f"curr_grad={curr_grade}")
-                elif re.search("\d{6}.*$", row[0]):
+                i += 1
+                if re.search("\d{6}.*$", row[0]):
                     new_student = Student(student_id=int(row[0]), name=row[2], email=row[3], phone=row[4], contact_by_phone=bool(row[5])) 
                     self.logger.debug(f"new_student = {str(new_student)}")
                     try:
@@ -55,7 +56,7 @@ class StudentListReport:
                         session.add(new_student)
                         new_students.append(new_student)
                         self.logger.debug(f"Added {repr(new_student)} to session and new_students[{len(new_students) - 1}]")
-                else
+                else:
                     self.logger.debug(f"Found a line that was not a student in the students file... (Line #{i}")
         session.commit()
         session.close()
@@ -67,23 +68,8 @@ class AttendanceReport:
     def __init__(self, filename, target_grade="09"):
         self.filename = filename
         self.target_grade = target_grade
-
-    def get_attendance_rates(self):
-        # "comprehend" the list of students as a dataframe
-        students_list = self.students.values()
-        df = pd.DataFrame([student.__dict__.values() for student_id, student in self.students.items()],
-                          columns=Student("", "", "", "", "", "", "0", "0").__dict__.keys())
-        # Specify type where appropriate (for maths later on)
-        df[['days_present', 'days_enrolled']] = df[['days_present', 'days_enrolled']].apply(pd.to_numeric)
-        # filter down to the specified grade
-        df = df[df['grade'] == self.target_grade] 
-        # compute the attendance rate
-        df['attendance_rate'] = df['days_present']/df['days_enrolled'] 
-        return df
-
-    def get_average_attendance_rate(self, _students_dataFrame):
-        df = _students_dataFrame
-        return df[['attendance_rate']].mean(axis=0)
+        self.logger = logging.getLogger(__name__)
+        self.logger.debug(f"Initialized {__name__} with filename = '{self.filename}' and target_grade = {self.target_grade}")
 
     def read(self):
         students = []
@@ -93,7 +79,8 @@ class AttendanceReport:
         with open(self.filename, 'r') as incoming:
             rows = csv.reader(incoming) 
             curr_grade = ""
-            self.logger.info(f"Reading {len(rows)} attendance records from file.")
+            #self.logger.info(f"Reading {sum(1 for row in rows)} attendance records from file.")
+            #rows.seek(0)
             for row in rows:
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
@@ -123,8 +110,9 @@ class AttendanceReport:
             try:
                 average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates) 
                 average_attendance_rate /= attendance_rates.__len__() 
-            except: 
-                self.logger.info("There weren't any new records in that report. Have you run it already?")
+            except TypeError:
+                self.logger.debug("There probably weren't any new records in this report.", stack_info=True)
+                self.logger.warning("There weren't any new records in that report. Have you run it already?")
                 pass
              
             session.commit()
