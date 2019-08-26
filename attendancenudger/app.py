@@ -130,11 +130,9 @@ class App:
             server.ehlo()
             #The nudger will authenticate us, then send the emails
             nudger = Nudger(self.conf, server)
-            #sent = []
-            #[sent.append(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
-            #sent = len(sent)
-            sent = [sum(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
-            self.logger.info(f"Sent {sent} emails...")
+            sent = []
+            [sent.append(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
+            self.logger.info(f"Sent {len(sent)} emails...")
             server.quit()
             self.logger.debug(f"Connection to server ({repr(server)}) closed.")
         except:
