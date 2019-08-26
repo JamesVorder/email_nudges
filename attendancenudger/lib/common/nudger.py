@@ -3,6 +3,8 @@ from twilio.rest import Client
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 import importlib.resources as pkg_resources
 from attendancenudger import _templates as templates
 import logging
@@ -18,6 +20,7 @@ class Nudger:
             self.email_server.login(self.email,self.email_pass)
         self.logger = logging.getLogger(__name__)
         self.logger.debug(f"Initialized {__name__}")
+        self.cfg = cfg
 
     def render(self, dict_in, template):
         self.logger.debug("Rendering jinja template.")
@@ -58,4 +61,25 @@ class Nudger:
 
                 self.email_server.sendmail(_from, _to, msg.as_string()) 
         return 1
+
+    def send_logs(self, log):
+        self.logger.debug("Sending logs to {self.cfg['author']['email']}.")
+        _to = self.cfg['author']['email']
+        _from = self.email
+
+        msg = MIMEMultipart()
+        msg['Subject'] = "Ahoy! Log files for you."
+        msg['From'] = _from
+        msg['To'] = _to
+
+        _body = "Please see the attached log file. \n\n Thank you."
+        msg.attach(MIMEText(_body))
+        
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(log)
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment; filename="debug.log"')
+        msg.attach(part)
+
+        self.email_server.sendmail(_from, _to, msg.as_string())
     
