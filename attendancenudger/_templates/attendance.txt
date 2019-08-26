@@ -3,11 +3,10 @@ Dear parent,
 
 I am pleased to share {{name}}'s weekly progress report with you:
 
-Your student's attendance rate was {{ (attendance_rate * 100) | round(1) }}%.
-The class's average attendance rate was {{ (class_avg_attendance * 100)|round(1) }}%.
-The goal for college and career readiness is 94%.
+Attendance: {{ (attendance_rate * 100) | round(1) }}%
+9th Grade Avg.: {{ (class_avg_attendance * 100)|round(1) }}%
+College and Career Ready Goal: 94%
 
-{% if (attendance_rate - class_avg_attendance) < 0 %}
-Your child's average attendance rate of {{(attendance_rate * 100)|round(1)}}% is below their classmates' average attendance rate of {{ (class_avg_attendance * 100)|round(1) }}%. Please help them understand the importance of waking up early and getting to school on time.
-{% endif %}
+Thanks!
+Amy
 
