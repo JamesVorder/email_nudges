@@ -19,6 +19,7 @@ class StudentListReport:
         self.logger.debug(f"Initialized StudentListReport with {self.filename}")
 
     def read(self):
+        self.logger.debug(f"Entered {__name__}.read()")
         try:
             session = session_factory()
         except:
@@ -54,9 +55,11 @@ class StudentListReport:
                         session.add(new_student)
                         new_students.append(new_student)
                         self.logger.debug(f"Added {repr(new_student)} to session and new_students[{len(new_students) - 1}]")
+                else
+                    self.logger.debug(f"Found a line that was not a student in the students file... (Line #{i}")
         session.commit()
         session.close()
-        self.logger.debug(f"Closed the session ({repr(session)})")
+        self.logger.debug(f"Committed and closed the session ({repr(session)})")
 
         return new_students
 
@@ -90,11 +93,14 @@ class AttendanceReport:
         with open(self.filename, 'r') as incoming:
             rows = csv.reader(incoming) 
             curr_grade = ""
+            self.logger.info(f"Reading {len(rows)} attendance records from file.")
             for row in rows:
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
+                    self.logger.debug(f"curr_grad={curr_grade}")
                 elif re.search("\d{6}.*$", row[0]) and curr_grade == "09":
                     new_report = Report(report_student_id = row[0], grade = curr_grade, days_enrolled = row[6], days_present = row[8], days_excused=row[9], days_not_excused = row[10])  
+                    self.logger.debug(f"new_report = {str(new_report)}")
                     if session.query(Report).filter(and_(Report.report_student_id == new_report.report_student_id, Report.days_enrolled == new_report.days_enrolled)).all().__len__() == 0:
                         student = session.query(Student).filter(Student.student_id == new_report.report_student_id).first()
                         student.reports.append(new_report)
@@ -104,9 +110,9 @@ class AttendanceReport:
                         merged.update(student.as_dict())
                         merged.update(new_report.as_dict())
                         students_with_reports.append(merged)
-                        #print(students_with_reports[len(students_with_reports) - 1])
                     else:
                         pass 
+            self.logger.info(f"Imported reports for {len(students_with_reports)} students.")
 
             def compute_attendance_rate(report): 
                 return float(report.days_present) / float(report.days_enrolled)
@@ -117,13 +123,13 @@ class AttendanceReport:
             try:
                 average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates) 
                 average_attendance_rate /= attendance_rates.__len__() 
-            except:
-                #Should I print some kind of error here?
-                #There weren't any new records in that report. Have you run it already?
+            except: 
+                self.logger.info("There weren't any new records in that report. Have you run it already?")
                 pass
              
             session.commit()
             session.close()
+            self.logger.debug(f"Committed and closed the session ({repr(session)})")
 
             return students_with_reports, average_attendance_rate
 

@@ -5,6 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import importlib.resources as pkg_resources
 from attendancenudger import _templates as templates
+import logging
 
 class Nudger:
     def __init__(self, cfg, email_server=None):
@@ -15,11 +16,15 @@ class Nudger:
         self.email_pass = cfg['gmail']['pass']
         if self.email_server:
             self.email_server.login(self.email,self.email_pass)
+        self.logger = logging.getLogger(__name__)
+        self.logger.debug(f"Initialized {__name__}")
 
     def render(self, dict_in, template):
+        self.logger.debug("Rendering jinja template.")
         return jinja.Template(template).render(dict_in)
 
     def send_text(self, dict_in, avg_att):
+        self.logger.debug("Sending text to {dict_in['name']} at {dict_in['phone']}")
         with pkg_resources.open_text(templates, 'attendance.txt') as sms_template:
             avg_att_dict = {'class_avg_attendance': avg_att}
             dict_in.update(avg_att_dict) 
@@ -29,6 +34,7 @@ class Nudger:
         return message.sid
 
     def send_email(self, dict_in, avg_att):
+        self.logger.debug("Sending email to {dict_in['name']} at {dict_in['email']}")
         with pkg_resources.open_text(templates, 'attendance.html') as html_template:
             with pkg_resources.open_text(templates, 'attendance.txt') as plaintext_template:
                 avg_att_dict = {'class_avg_attendance': avg_att}

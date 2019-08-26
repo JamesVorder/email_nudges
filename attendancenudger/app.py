@@ -136,9 +136,9 @@ class App:
 
     def run_report(self):
         self.import_students()
-        #self.import_report()
-        #self.send_sms()
-        #self.send_emails()
+        self.import_report()
+        self.send_sms()
+        self.send_emails()
         self.logger.info(f"Done!")
 
 def main(): 
