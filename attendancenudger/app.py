@@ -63,6 +63,9 @@ class App:
             self.btn_run_report = ttk.Button(master, text="Run Report", width=10, command=self.run_report)
             self.btn_run_report.grid(row=4, column=1)
 
+            self.btn_send_logs = ttk.Button(master, text="Send Logs", width=10, command=self.send_logs)
+            self.btn_send_logs.grid(row=5, column=0)
+
 
             #OUTPUT WINDOW TEXT REDIRECT
             #https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
@@ -127,12 +130,24 @@ class App:
             server.ehlo()
             #The nudger will authenticate us, then send the emails
             nudger = Nudger(self.conf, server)
-            sent = []
-            [sent.append(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
+            #sent = []
+            #[sent.append(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
+            #sent = len(sent)
+            sent = [sum(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
+            self.logger.info(f"Sent {sent} emails...")
             server.quit()
-            self.logger.info(f"Sent {len(sent)} emails...")
+            self.logger.debug(f"Connection to server ({repr(server)}) closed.")
         except:
             self.logger.exception("There was a problem sending the emails.")
+
+    def send_logs(self):
+        with open("debug.log", "rb") as debug_log:
+            server = smtplib.SMTP('smtp.gmail.com:587')
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            nudger = Nudger(self.conf, server)
+            nudger.send_logs(debug_log.read())
 
     def run_report(self):
         self.import_students()

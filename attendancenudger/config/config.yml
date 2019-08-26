@@ -7,3 +7,5 @@ db:
 gmail:
     email: 
     pass: 
+author:
+    email:
