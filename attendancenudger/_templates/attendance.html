@@ -24,6 +24,7 @@
 		<p>Dear parent, <br><br>I am pleased to share {{name}}'s weekly progress report with you:</p>
 		<br>
 		{% set attendance_rate = days_present / days_enrolled %}
+		{% set weekly_attendance_rate = days_present_weekly / days_enrolled_weekly %}
 		<table>
 			<thead>
 				<tr>
@@ -33,18 +34,18 @@
 				<tr>
 					<th></th>
 					<th>This Week</th>
-					<th>{{days_enrolled}} Days So Far</th>
+					<th>{{ days_enrolled|round|int }} Days So Far</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
 					<td></td>
-					<td>N/A</td>
-					<td>Missed {{days_enrolled - days_present}}</td>
+					<td>Missed {{ (days_enrolled_weekly - days_present_weekly)|round|int }}</td>
+					<td>Missed {{ (days_enrolled - days_present)|round|int }}</td>
 				</tr>
 				<tr>
 					<td>Your Student</td>
-					<td>N/A</td>
+					<td>{{ (weekly_attendance_rate * 100)|round(1) }}%</td>
 					<td>{{ (attendance_rate * 100)|round(1) }}%</td>
 				<tr>
 					<td>Average</td>

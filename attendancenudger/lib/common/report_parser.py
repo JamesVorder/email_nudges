@@ -85,9 +85,12 @@ class AttendanceReport:
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
                     self.logger.debug(f"curr_grad={curr_grade}")
                 elif re.search("\d{6}.*$", row[0]) and curr_grade == "09":
-                    new_report = Report(report_student_id = row[0], grade = curr_grade, days_enrolled = row[6], days_present = row[8], days_excused=row[9], days_not_excused = row[10], date_added = datetime.now().date()) 
+                    new_report = Report(report_student_id = row[0], grade = curr_grade, days_enrolled = row[6], 
+                            days_present = row[8], days_excused=row[9], days_not_excused = row[10], date_added = datetime.now().date()) 
                     self.logger.debug(f"new_report = {str(new_report)}")
-                    if session.query(Report).filter(and_(Report.report_student_id == new_report.report_student_id, Report.days_enrolled == new_report.days_enrolled)).all().__len__() == 0:
+                    if session.query(Report).filter(
+                            and_(Report.report_student_id == new_report.report_student_id, Report.days_enrolled == new_report.days_enrolled)
+                            ).all().__len__() == 0:
                         student = session.query(Student).filter(Student.student_id == new_report.report_student_id).first()
                         student.reports.append(new_report)
                         students.append(student)
@@ -95,6 +98,13 @@ class AttendanceReport:
                         merged = dict()
                         merged.update(student.as_dict())
                         merged.update(new_report.as_dict())
+                        last_week_report = session.query(Report).filter(Report.report_student_id == new_report.report_student_id)\
+                                .order_by(desc(Report.days_enrolled))[1]
+                        weekly_stats = {
+                            'days_enrolled_weekly': float(new_report.days_enrolled) - float(last_week_report.days_enrolled),
+                            'days_present_weekly': float(new_report.days_present) - float(last_week_report.days_present)
+                        }
+                        merged.update(weekly_stats)
                         students_with_reports.append(merged)
                     else:
                         pass 
@@ -104,9 +114,11 @@ class AttendanceReport:
                 return float(report.days_present) / float(report.days_enrolled)
 
             def compute_weekly_attendance_rate(report):
-                last_week_report = session.query(Report).filter(Report.report_student_id == report.report_student_id).order_by(desc(Report.date_added)).first()
+                last_week_report = session.query(Report).filter(Report.report_student_id == report.report_student_id)\
+                        .order_by(desc(Report.days_enrolled)).first()
                 try:
-                    out = (float(report.days_present) - float(last_week_report.days_present)) / (float(report.days_enrolled) - float(last_week_report.days_enrolled))
+                    out = (float(report.days_present) - float(last_week_report.days_present)) \
+                            / (float(report.days_enrolled) - float(last_week_report.days_enrolled))
                     return out
                 except ZeroDivisionError:
                     return None
