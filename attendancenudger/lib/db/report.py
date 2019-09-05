@@ -1,5 +1,5 @@
 #import sqlalchemy
-from sqlalchemy import Column, String, Boolean, Float, Integer, ForeignKey
+from sqlalchemy import Column, String, Boolean, Float, Integer, ForeignKey, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from ..common.base import Base
@@ -14,6 +14,7 @@ class Report(Base):
     days_present = Column(Float)
     days_excused = Column(Float)
     days_not_excused = Column(Float) 
+    date_added = Column(Date)
 
     report_student_id = Column(Integer, ForeignKey('student.student_id')) 
 

@@ -99,7 +99,7 @@ class App:
             filename = self.report_file
             self.logger.info(f'Reading {filename}')
             report = AttendanceReport(filename, target_grade="09")
-            self.students_with_reports, self.average_attendance_rate = report.read()
+            self.students_with_reports, self.average_attendance_rate, self.weekly_average_attendance_rate = report.read()
             self.logger.info(f"Added {len(self.students_with_reports)} reports...\nAverage reported attendance was {self.average_attendance_rate}...")
         except:
             self.logger.exception("There was a problem importing the attendance report.")
@@ -117,7 +117,7 @@ class App:
         try:
             nudger = Nudger(self.conf)
             sent = []
-            [sent.append(nudger.send_text(swr, self.average_attendance_rate)) for swr in self.students_with_reports if swr['contact_by_phone']]
+            [sent.append(nudger.send_text(swr, self.average_attendance_rate, self.weekly_average_attendance_rate)) for swr in self.students_with_reports if swr['contact_by_phone']]
             self.logger.info(f"Sent {len(sent)} text messages...")
         except:
             self.logger.exception("There was a problem sending the text messages.")
@@ -131,7 +131,7 @@ class App:
             #The nudger will authenticate us, then send the emails
             nudger = Nudger(self.conf, server)
             sent = []
-            [sent.append(nudger.send_email(swr, self.average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
+            [sent.append(nudger.send_email(swr, self.average_attendance_rate, self.weekly_average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
             self.logger.info(f"Sent {len(sent)} emails...")
             server.quit()
             self.logger.debug(f"Connection to server ({repr(server)}) closed.")

@@ -23,6 +23,7 @@
 	<body>
 		<p>Dear parent, <br><br>I am pleased to share {{name}}'s weekly progress report with you:</p>
 		<br>
+		{% set attendance_rate = days_present / days_enrolled %}
 		<table>
 			<thead>
 				<tr>
@@ -42,8 +43,16 @@
 					<td>Missed {{days_enrolled - days_present}}</td>
 				</tr>
 				<tr>
-					<td>Average</td>
+					<td>Your Student</td>
 					<td>N/A</td>
+					<td>{{ (attendance_rate * 100)|round(1) }}%</td>
+				<tr>
+					<td>Average</td>
+					{% if weekly_class_avg_attendance %}
+					<td>{{ (weekly_class_avg_attendance * 100)|round(1) }}%</td>
+					{% else %}
+					<td>N/A</td>
+					{% endif %}
 					<td>{{ (class_avg_attendance * 100)|round(1) }}%</td>
 				</tr>
 				<tr>
@@ -54,7 +63,6 @@
 			</tbody>
 		</table>
 	
-		{% set attendance_rate = days_present / days_enrolled %}
 		{% set attendance_distance = attendance_rate - class_avg_attendance %}
 		{% if attendance_distance < 0 %}
 		<br>

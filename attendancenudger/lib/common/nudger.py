@@ -26,21 +26,21 @@ class Nudger:
         self.logger.debug("Rendering jinja template.")
         return jinja.Template(template).render(dict_in)
 
-    def send_text(self, dict_in, avg_att):
+    def send_text(self, dict_in, avg_att, weekly_avg_att):
         self.logger.debug("Sending text to {dict_in['name']} at {dict_in['phone']}")
         with pkg_resources.open_text(templates, 'attendance.txt') as sms_template:
-            avg_att_dict = {'class_avg_attendance': avg_att}
+            avg_att_dict = { 'class_avg_attendance': avg_att, 'weekly_class_avg_attendance': weekly_avg_att }
             dict_in.update(avg_att_dict) 
             message = self.twilio_sms_client.messages.create(body=self.render(dict_in, sms_template.read()), \
                     from_=self.twilio_phone_number, \
                     to=dict_in['phone'])
         return message.sid
 
-    def send_email(self, dict_in, avg_att):
+    def send_email(self, dict_in, avg_att, weekly_avg_att):
         self.logger.debug("Sending email to {dict_in['name']} at {dict_in['email']}")
         with pkg_resources.open_text(templates, 'attendance.html') as html_template:
             with pkg_resources.open_text(templates, 'attendance.txt') as plaintext_template:
-                avg_att_dict = {'class_avg_attendance': avg_att}
+                avg_att_dict = { 'class_avg_attendance': avg_att, 'weekly_class_avg_attendance': weekly_avg_att }
                 dict_in.update(avg_att_dict)
                 _to = dict_in['email']
                 _from = self.email

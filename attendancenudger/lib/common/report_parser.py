@@ -1,7 +1,7 @@
 import csv
 import re
 from functools import reduce
-from sqlalchemy import create_engine, and_
+from sqlalchemy import create_engine, and_, desc
 from sqlalchemy.orm import sessionmaker, aliased
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError
@@ -10,6 +10,7 @@ from .base import session_factory
 from ..db.report import Report
 from ..db.student import Student
 import logging
+from datetime import datetime
 
 class StudentListReport:
      
@@ -79,14 +80,12 @@ class AttendanceReport:
         with open(self.filename, 'r') as incoming:
             rows = csv.reader(incoming) 
             curr_grade = ""
-            #self.logger.info(f"Reading {sum(1 for row in rows)} attendance records from file.")
-            #rows.seek(0)
             for row in rows:
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
                     self.logger.debug(f"curr_grad={curr_grade}")
                 elif re.search("\d{6}.*$", row[0]) and curr_grade == "09":
-                    new_report = Report(report_student_id = row[0], grade = curr_grade, days_enrolled = row[6], days_present = row[8], days_excused=row[9], days_not_excused = row[10])  
+                    new_report = Report(report_student_id = row[0], grade = curr_grade, days_enrolled = row[6], days_present = row[8], days_excused=row[9], days_not_excused = row[10], date_added = datetime.now().date()) 
                     self.logger.debug(f"new_report = {str(new_report)}")
                     if session.query(Report).filter(and_(Report.report_student_id == new_report.report_student_id, Report.days_enrolled == new_report.days_enrolled)).all().__len__() == 0:
                         student = session.query(Student).filter(Student.student_id == new_report.report_student_id).first()
@@ -103,13 +102,25 @@ class AttendanceReport:
 
             def compute_attendance_rate(report): 
                 return float(report.days_present) / float(report.days_enrolled)
+
+            def compute_weekly_attendance_rate(report):
+                last_week_report = session.query(Report).filter(Report.report_student_id == report.report_student_id).order_by(desc(Report.date_added)).first()
+                try:
+                    out = (float(report.days_present) - float(last_week_report.days_present)) / (float(report.days_enrolled) - float(last_week_report.days_enrolled))
+                    return out
+                except ZeroDivisionError:
+                    return None
   
             attendance_rates = [compute_attendance_rate(report) for report in reports] 
+            weekly_attendance_rates = [compute_weekly_attendance_rate(report) for report in reports]
             _sum = 0.0
             average_attendance_rate = None
+            weekly_average_attendance_rate = None
             try:
                 average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates) 
-                average_attendance_rate /= attendance_rates.__len__() 
+                average_attendance_rate /= len(attendance_rates)
+                weekly_average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), weekly_attendance_rates)
+                weekly_average_attendance_rate /= len(weekly_attendance_rates)
             except TypeError:
                 self.logger.debug("There probably weren't any new records in this report.", stack_info=True)
                 self.logger.warning("There weren't any new records in that report. Have you run it already?")
@@ -119,5 +130,5 @@ class AttendanceReport:
             session.close()
             self.logger.debug(f"Committed and closed the session ({repr(session)})")
 
-            return students_with_reports, average_attendance_rate
+            return students_with_reports, average_attendance_rate, weekly_average_attendance_rate
 
