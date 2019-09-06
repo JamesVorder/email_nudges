@@ -1,4 +1,6 @@
+import re
 import jinja2 as jinja
+from jinja2 import Environment, PackageLoader, select_autoescape
 from twilio.rest import Client
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -21,10 +23,17 @@ class Nudger:
         self.logger = logging.getLogger(__name__)
         self.logger.debug(f"Initialized {__name__}")
         self.cfg = cfg
+        self.jinja_env = Environment(
+            loader = PackageLoader('attendancenudger', '_templates'),
+            autoescape = select_autoescape(['html'])
+        )
+        def firstname(name):
+            return re.sub('.*,', '', name, count=1)
+        self.jinja_env.filters['firstname'] = firstname
 
     def render(self, dict_in, template):
-        self.logger.debug("Rendering jinja template.")
-        return jinja.Template(template).render(dict_in)
+        self.logger.debug(f"Rendering jinja template, {template}.")
+        return self.jinja_env.from_string(template).render(dict_in)
 
     def send_text(self, dict_in, avg_att, weekly_avg_att):
         self.logger.debug("Sending text to {dict_in['name']} at {dict_in['phone']}")
