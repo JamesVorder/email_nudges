@@ -11,6 +11,7 @@ from ..db.report import Report
 from ..db.student import Student
 import logging
 from datetime import datetime
+from numpy import mean
 
 class StudentListReport:
      
@@ -88,9 +89,9 @@ class AttendanceReport:
                     new_report = Report(report_student_id = row[0], grade = curr_grade, days_enrolled = row[6], 
                             days_present = row[8], days_excused=row[9], days_not_excused = row[10], date_added = datetime.now().date()) 
                     self.logger.debug(f"new_report = {str(new_report)}")
-                    if session.query(Report).filter(
+                    if len(session.query(Report).filter(
                             and_(Report.report_student_id == new_report.report_student_id, Report.days_enrolled == new_report.days_enrolled)
-                            ).all().__len__() == 0:
+                            ).all()) == 0:
                         student = session.query(Student).filter(Student.student_id == new_report.report_student_id).first()
                         student.reports.append(new_report)
                         students.append(student)
@@ -106,33 +107,26 @@ class AttendanceReport:
                         }
                         merged.update(weekly_stats)
                         students_with_reports.append(merged)
+                        self.logger.debug(f"students_with_reports[{len(students_with_reports)}] = {students_with_reports[len(students_with_reports)-1]}")
                     else:
                         pass 
             self.logger.info(f"Imported reports for {len(students_with_reports)} students.")
 
             def compute_attendance_rate(report): 
                 return float(report.days_present) / float(report.days_enrolled)
-
-            def compute_weekly_attendance_rate(report):
-                last_week_report = session.query(Report).filter(Report.report_student_id == report.report_student_id)\
-                        .order_by(desc(Report.days_enrolled)).first()
-                try:
-                    out = (float(report.days_present) - float(last_week_report.days_present)) \
-                            / (float(report.days_enrolled) - float(last_week_report.days_enrolled))
-                    return out
-                except ZeroDivisionError:
-                    return None
   
             attendance_rates = [compute_attendance_rate(report) for report in reports] 
-            weekly_attendance_rates = [compute_weekly_attendance_rate(report) for report in reports]
+            weekly_attendance_rates = [(x['days_present_weekly'] / x['days_enrolled_weekly']) for x in students_with_reports]
+            self.logger.debug(f"Computed {len(weekly_attendance_rates)} weekly attendance rates.")
             _sum = 0.0
             average_attendance_rate = None
             weekly_average_attendance_rate = None
             try:
-                average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), attendance_rates) 
-                average_attendance_rate /= len(attendance_rates)
-                weekly_average_attendance_rate = reduce((lambda _sum, rate: _sum + rate), weekly_attendance_rates)
-                weekly_average_attendance_rate /= len(weekly_attendance_rates)
+                self.logger.debug(f"Computing average attendance rate for {len(attendance_rates)} students.")
+                average_attendance_rate = mean(attendance_rates)
+                self.logger.debug(f"Computing average attendance (this week) for {len(weekly_attendance_rates)} students.")
+                weekly_average_attendance_rate = mean(weekly_attendance_rates)
+                self.logger.debug(f"Computed weekly_average_attendance_rate = {weekly_average_attendance_rate}")
             except TypeError:
                 self.logger.debug("There probably weren't any new records in this report.", stack_info=True)
                 self.logger.warning("There weren't any new records in that report. Have you run it already?")
@@ -141,6 +135,7 @@ class AttendanceReport:
             session.commit()
             session.close()
             self.logger.debug(f"Committed and closed the session ({repr(session)})")
+            self.logger.debug(f"Returning students_with_reports: {students_with_reports}, average_attendance_rate: {average_attendance_rate}, weekly_average_attendance_rate: {weekly_average_attendance_rate}")
 
             return students_with_reports, average_attendance_rate, weekly_average_attendance_rate
 

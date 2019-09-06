@@ -49,11 +49,7 @@
 					<td>{{ (attendance_rate * 100)|round(1) }}%</td>
 				<tr>
 					<td>Average</td>
-					{% if weekly_class_avg_attendance %}
-					<td>{{ (weekly_class_avg_attendance * 100)|round(1) }}%</td>
-					{% else %}
-					<td>N/A</td>
-					{% endif %}
+					<td>{{ (weekly_class_avg_attendance * 100)|round(1) if weekly_class_avg_attendance != None else 'N/A' }}%</td>
 					<td>{{ (class_avg_attendance * 100)|round(1) }}%</td>
 				</tr>
 				<tr>
