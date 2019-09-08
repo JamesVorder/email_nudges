@@ -24,7 +24,11 @@
 		<p>Dear parent, <br><br>I am pleased to share {{name|firstname}}'s weekly progress report with you:</p>
 		<br>
 		{% set attendance_rate = days_present / days_enrolled %}
+		{% if days_present_weekly is not none and days_enrolled_weekly is not none %}
 		{% set weekly_attendance_rate = days_present_weekly / days_enrolled_weekly %}
+		{% else %}
+		{% set weekly_attendance_rate = None %}
+		{% endif %}
 		<table>
 			<thead>
 				<tr>
@@ -40,16 +44,28 @@
 			<tbody>
 				<tr>
 					<td></td>
+					{% if days_enrolled_weekly is not none and days_present_weekly is not none %}
 					<td>Missed {{ (days_enrolled_weekly - days_present_weekly)|round|int }}</td>
+					{% else %}
+					<td>N/A</td>
+					{% endif %}
 					<td>Missed {{ (days_enrolled - days_present)|round|int }}</td>
 				</tr>
 				<tr>
 					<td>Your Student</td>
+					{% if weekly_attendance_rate is not none %}
 					<td>{{ (weekly_attendance_rate * 100)|round(1) }}%</td>
+					{% else %}
+					<td>N/A</td>
+					{% endif %}
 					<td>{{ (attendance_rate * 100)|round(1) }}%</td>
 				<tr>
 					<td>Average</td>
-					<td>{{ (weekly_class_avg_attendance * 100)|round(1) if weekly_class_avg_attendance != None else 'N/A' }}%</td>
+					{% if weekly_class_avg_attendance is not none %}
+					<td>{{ (weekly_class_avg_attendance * 100)|round(1)}}%</td>
+					{% else %}
+					<td>N/A</td>
+					{% endif %}
 					<td>{{ (class_avg_attendance * 100)|round(1) }}%</td>
 				</tr>
 				<tr>

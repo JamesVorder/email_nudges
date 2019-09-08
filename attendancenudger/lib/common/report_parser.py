@@ -92,12 +92,11 @@ class AttendanceReport:
                             days_present = row[8], days_excused=row[9], days_not_excused = row[10], date_added = datetime.now().date()) 
                     self.logger.debug(f"new_report = {str(new_report)}")
                     #if there is NOT already a matching report... (based on num days enrolled)
+                    #AND there's a student in our DB that this record belongs to...
                     if len(session.query(Report).filter(
                             and_(Report.report_student_id == new_report.report_student_id, Report.days_enrolled == new_report.days_enrolled)
-                            ).all()) == 0:
+                            ).all()) == 0 and len(session.query(Student).filter(Student.student_id == new_report.report_student_id).all()) > 0:
                         student = session.query(Student).filter(Student.student_id == new_report.report_student_id).first()
-                        if student == None:
-                            next
                         student.reports.append(new_report)
                         students.append(student)
                         reports.append(new_report)
@@ -113,6 +112,11 @@ class AttendanceReport:
                             }
                             merged.update(weekly_stats)
                         except IndexError:
+                            weekly_stats = {
+                                'days_enrolled_weekly': None,
+                                'days_present_weekly': None,
+                            }
+                            merged.update(weekly_stats)
                             self.logger.debug("No report found from last week. This must be the first run on a new DB.")
                             pass
                         students_with_reports.append(merged)
@@ -125,7 +129,8 @@ class AttendanceReport:
                 return float(report.days_present) / float(report.days_enrolled)
   
             attendance_rates = [compute_attendance_rate(report) for report in reports] 
-            weekly_attendance_rates = [(x['days_present_weekly'] / x['days_enrolled_weekly']) for x in students_with_reports]
+            weekly_attendance_rates = [(x['days_present_weekly'] / x['days_enrolled_weekly']) for x in students_with_reports \
+                    if x['days_present_weekly'] and x['days_enrolled_weekly']]
             self.logger.debug(f"Computed {len(weekly_attendance_rates)} weekly attendance rates.")
             _sum = 0.0
             average_attendance_rate = None
