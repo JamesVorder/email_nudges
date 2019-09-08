@@ -99,13 +99,17 @@ class AttendanceReport:
                         merged = dict()
                         merged.update(student.as_dict())
                         merged.update(new_report.as_dict())
-                        last_week_report = session.query(Report).filter(Report.report_student_id == new_report.report_student_id)\
-                                .order_by(desc(Report.days_enrolled))[1]
-                        weekly_stats = {
-                            'days_enrolled_weekly': float(new_report.days_enrolled) - float(last_week_report.days_enrolled),
-                            'days_present_weekly': float(new_report.days_present) - float(last_week_report.days_present)
-                        }
-                        merged.update(weekly_stats)
+                        try:
+                            last_week_report = session.query(Report).filter(Report.report_student_id == new_report.report_student_id)\
+			        .order_by(desc(Report.days_enrolled))[1]
+                            weekly_stats = {
+                                'days_enrolled_weekly': float(new_report.days_enrolled) - float(last_week_report.days_enrolled),
+                                'days_present_weekly': float(new_report.days_present) - float(last_week_report.days_present)
+                            }
+                            merged.update(weekly_stats)
+                        except IndexError:
+                            self.logger.debug("No report found from last week. This must be the first run on a new DB.")
+                            pass
                         students_with_reports.append(merged)
                         self.logger.debug(f"students_with_reports[{len(students_with_reports)}] = {students_with_reports[len(students_with_reports)-1]}")
                     else:
