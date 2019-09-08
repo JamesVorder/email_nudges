@@ -66,7 +66,11 @@
 					{% else %}
 					<td>N/A</td>
 					{% endif %}
+					{% if class_avg_attendance is not none %}
 					<td>{{ (class_avg_attendance * 100)|round(1) }}%</td>
+					{% else %}
+					<td>N/A</td>
+					{% endif %}
 				</tr>
 				<tr>
 					<td>College and Career Ready Goal</td>
