@@ -85,14 +85,19 @@ class AttendanceReport:
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
                     self.logger.debug(f"curr_grad={curr_grade}")
+                #If this is a student's attendance report, and they're a ninth grader...
                 elif re.search("\d{6}.*$", row[0]) and curr_grade == "09":
+                    #initialize the new report object
                     new_report = Report(report_student_id = row[0], grade = curr_grade, days_enrolled = row[6], 
                             days_present = row[8], days_excused=row[9], days_not_excused = row[10], date_added = datetime.now().date()) 
                     self.logger.debug(f"new_report = {str(new_report)}")
+                    #if there is NOT already a matching report... (based on num days enrolled)
                     if len(session.query(Report).filter(
                             and_(Report.report_student_id == new_report.report_student_id, Report.days_enrolled == new_report.days_enrolled)
                             ).all()) == 0:
                         student = session.query(Student).filter(Student.student_id == new_report.report_student_id).first()
+                        if student == None:
+                            next
                         student.reports.append(new_report)
                         students.append(student)
                         reports.append(new_report)
@@ -113,7 +118,7 @@ class AttendanceReport:
                         students_with_reports.append(merged)
                         self.logger.debug(f"students_with_reports[{len(students_with_reports)}] = {students_with_reports[len(students_with_reports)-1]}")
                     else:
-                        pass 
+                        next 
             self.logger.info(f"Imported reports for {len(students_with_reports)} students.")
 
             def compute_attendance_rate(report): 
