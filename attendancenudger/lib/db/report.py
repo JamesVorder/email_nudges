@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from ..common.base import Base
 
-class Report(Base): 
+class Report(Base):
 
     __tablename__ = "reports"
 
@@ -13,13 +13,13 @@ class Report(Base):
     days_enrolled = Column(Float)
     days_present = Column(Float)
     days_excused = Column(Float)
-    days_not_excused = Column(Float) 
+    days_not_excused = Column(Float)
     date_added = Column(Date)
 
-    report_student_id = Column(Integer, ForeignKey('student.student_id')) 
+    report_student_id = Column(Integer, ForeignKey('student.student_id'))
 
     student = relationship("Student", back_populates="reports")
-    
+
     def as_dict(self):
         return {'report_id': self.report_id, \
                 'grade': self.grade, \
@@ -27,4 +27,3 @@ class Report(Base):
                 'days_present': float(self.days_present), \
                 'days_excused': float(self.days_excused), \
                 'days_not_excused': float(self.days_excused)}
-
