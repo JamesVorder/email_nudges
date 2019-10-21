@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-from .lib.common.report_parser import StudentListReport, AttendanceReport
+from .lib.common.report_parser import StudentListReport, AttendanceReport, GradesReport
 from .lib.common.nudger import Nudger
 import yaml
 import sqlalchemy
@@ -35,7 +35,8 @@ class App:
         with pkg_resources.open_text(config, "config.yml") as ymlfile:
                 self.conf = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
-
+        self.report_file = None
+        self.grade_file = None
 
         try:
             master.title("Attendance Nudge-er")
@@ -119,6 +120,14 @@ class App:
         except:
             self.logger.exception("There was a problem importing the attendance report.")
 
+    def import_grades(self):
+        try:
+            filename = self.grade_file
+            self.logger.info(f'Reading {filename}')
+            report = GradesReport(filename)
+        except:
+            self.logger.exception("There was a problem importing the grades report.")
+
     def import_students(self):
         try:
             filename = self.students_file
@@ -164,7 +173,10 @@ class App:
 
     def run_report(self):
         self.import_students()
-        self.import_report()
+        if self.report_file is not None:
+            self.import_report()
+        if self.grade_file is not None:
+            self.import_grades()
         self.send_sms()
         self.send_emails()
         self.logger.info(f"Done!")

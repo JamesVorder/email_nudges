@@ -67,11 +67,16 @@ class StudentListReport:
 
         return new_students
 
-class AttendanceReport:
-    def __init__(self, filename, target_grade="09"):
+class Report(object):
+    def __init__(self, filename):
         self.filename = filename
-        self.target_grade = target_grade
         self.logger = logging.getLogger(__name__)
+
+
+class AttendanceReport(Report):
+    def __init__(self, filename, target_grade="09"):
+        super().__init__(filename)
+        self.target_grade = target_grade
         self.logger.debug(f"Initialized {__name__} with filename = '{self.filename}' and target_grade = {self.target_grade}")
 
     def read(self):
@@ -154,12 +159,10 @@ class AttendanceReport:
 
             return students_with_reports, average_attendance_rate, weekly_average_attendance_rate
 
-class GradesReport:
-    def __init__(self, filename, target_grade="09"):
-        self.filename = filename
-        self.target_grade = target_grade
-        self.logger = logging.getLogger(__name__)
-        self.logger.debug(f"Initialized GradesReport with {self.filename}")
+class GradesReport(Report):
+    def __init__(self, filename):
+        super().__init__(filename)
+        self.logger.debug(f"Initialized {__name__} with filename = '{self.filename}'")
 
     def read(self):
         self.logger.debug(f"Entered {__name__}.read()")
