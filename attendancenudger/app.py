@@ -31,12 +31,12 @@ class TextRedirector(object):
 
 class App:
     def __init__(self, master):
-        
+
         with pkg_resources.open_text(config, "config.yml") as ymlfile:
                 self.conf = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
 
-        
+
         try:
             master.title("Attendance Nudge-er")
 
@@ -57,14 +57,21 @@ class App:
             self.btn_report_file = ttk.Button(master, text="...", width=3, command=self.set_report_file)
             self.btn_report_file.grid(row=3, column=1)
 
+            self.lbl_grade_file = ttk.Label(master, text="Latest Grades Report")
+            self.lbl_grade_file.grid(row=4, column=0, stick=tk.W)
+            self.txt_grade_file = ttk.Label(master, relief=tk.SUNKEN, width=output_width)
+            self.txt_grade_file.grid(row=5, column=0)
+            self.btn_grade_file = ttk.Button(master, text="...", width=3, command=self.set_grade_file)
+            self.btn_grade_file.grid(row=5, column=1)
+
             self.txt_out = tk.Text(master, width=output_width, height=output_height, wrap=tk.WORD)
-            self.txt_out.grid(row=4, column=0)
-            
+            self.txt_out.grid(row=6, column=0)
+
             self.btn_run_report = ttk.Button(master, text="Run Report", width=10, command=self.run_report)
-            self.btn_run_report.grid(row=4, column=1)
+            self.btn_run_report.grid(row=6, column=1)
 
             self.btn_send_logs = ttk.Button(master, text="Send Logs", width=10, command=self.send_logs)
-            self.btn_send_logs.grid(row=5, column=0)
+            self.btn_send_logs.grid(row=7, column=0)
 
 
             #OUTPUT WINDOW TEXT REDIRECT
@@ -73,21 +80,29 @@ class App:
             sys.stderr = TextRedirector(self.txt_out, "sys.stderr")
 
             setup_logging()
-            self.logger = logging.getLogger(__name__)  
+            self.logger = logging.getLogger(__name__)
 
         except:
             self.logger.exception("There was a problem initializing the UI.")
-        
+
     def set_report_file(self):
         try:
             self.report_file = askopenfilename()
             self.txt_report_file.config(text=self.report_file)
-            self.logger.info("Most recent report selected...")
+            self.logger.info("Most recent attendance file selected...")
         except:
-            self.logger.exception("There was a problem selecting the report file.")
+            self.logger.exception("There was a problem selecting the attendance file.")
+
+    def set_grade_file(self):
+        try:
+            self.grade_file = askopenfilename()
+            self.txt_grade_file.config(text=self.grade_file)
+            self.logger.info("Most recent grade file selected...")
+        except:
+            self.logger.exception("There was a problem selecting the grade file.")
 
     def set_students_file(self):
-        try: 
+        try:
             self.students_file = askopenfilename()
             self.txt_students_file.config(text=self.students_file)
             self.logger.info("Students file selected...")
@@ -106,7 +121,7 @@ class App:
 
     def import_students(self):
         try:
-            filename = self.students_file 
+            filename = self.students_file
             report = StudentListReport(filename)
             new_students = report.read()
             self.logger.info(f"Added {len(new_students)} students...")
@@ -124,7 +139,7 @@ class App:
 
     def send_emails(self):
         try:
-            server = smtplib.SMTP('smtp.gmail.com:587') 
+            server = smtplib.SMTP('smtp.gmail.com:587')
             server.ehlo()
             server.starttls()
             server.ehlo()
@@ -154,7 +169,7 @@ class App:
         self.send_emails()
         self.logger.info(f"Done!")
 
-def main(): 
+def main():
     self.logger.debug("attendancenudger.app.main touched.")
     pass
 

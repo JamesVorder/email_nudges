@@ -19,6 +19,6 @@ class GradesReport(Base):
 
     def as_dict(self):
         return {'report_id': self.report_id, \
-                'current_avg': self.avg_grade, \
-                'course': str(self.department), \
+                'current_avg': self.current_avg, \
+                'course': str(self.course), \
                 'date_added': self.date_added)}
