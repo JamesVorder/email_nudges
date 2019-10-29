@@ -51,7 +51,7 @@ setup(
         'six==1.12.0',
         'SQLAlchemy==1.3.6',
         'twilio==6.29.3',
-        'urllib3==1.24.3',
+        'urllib3==1.24.2',
         ], 
     #options={
     #    'app': {
