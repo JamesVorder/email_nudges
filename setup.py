@@ -41,7 +41,7 @@ setup(
         'certifi==2019.6.16',
         'chardet==3.0.4',
         'idna==2.8',
-        'Jinja2==2.10.1',
+        'Jinja2==2.11.3',
         'MarkupSafe==1.1.1',
         'PyJWT==1.7.1',
         'PySocks==1.7.0',
