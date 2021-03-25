@@ -46,7 +46,7 @@ setup(
         'PyJWT==1.7.1',
         'PySocks==1.7.0',
         'pytz==2019.2',
-        'PyYAML==5.1.2',
+        'PyYAML==5.4',
         'requests==2.22.0',
         'six==1.12.0',
         'SQLAlchemy==1.3.6',
