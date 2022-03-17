@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 from ..common.base import Base
 
 class Student(Base):
-    
+
     __tablename__ = "student"
 
     student_id = Column(Integer, index=True, primary_key=True)
@@ -23,4 +23,3 @@ class Student(Base):
                 'email': self.email, \
                 'phone': self.phone, \
                 'contact_by_phone': self.contact_by_phone}
-

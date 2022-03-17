@@ -12,7 +12,7 @@ with io.open('./attendancenudger/__init__.py', encoding='utf8') as version_file:
         raise RuntimeError("Unable to find version string.")
 
 
-with io.open('README.rst', encoding='utf8') as readme:
+with io.open('README.md', encoding='utf8') as readme:
     long_description = readme.read()
 
 
@@ -52,6 +52,8 @@ setup(
         'SQLAlchemy==1.3.6',
         'twilio==6.29.3',
         'urllib3==1.24.3',
+	'numpy==1.17.1',
+	'setuptools==41.2.0',
         ], 
     #options={
     #    'app': {
