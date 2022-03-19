@@ -85,6 +85,13 @@ class App:
             setup_logging()
             self.logger = logging.getLogger(__name__)
 
+            self.logger.info("The students file is a file you build manually. It has the students' contact info, etc.")
+            self.logger.info("The attendance report should come from Aspen.")
+            self.logger.info("The grades report is not used for anything in this version.")
+            self.logger.info("Clicking 'Run Report' will send an email to everyone in the students file with their attendance information..")
+            self.logger.warning("SMS is currently disabled.")
+            self.logger.info("Waiting for files...")
+
         except:
             self.logger.exception("There was a problem initializing the UI.")
 
@@ -189,7 +196,8 @@ class App:
         if self.grade_file is not None:
             self.import_grades()
         self.send_emails()
-        self.send_sms()
+        # TODO: Enable SMS once credentials are fixed
+        # self.send_sms()
         self.logger.info(f"Done!")
 
 
