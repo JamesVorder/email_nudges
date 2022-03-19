@@ -11,8 +11,10 @@ cd ./email_nudges
 ```
 ### Set up a virtual environment ###
 
+Note: I use pyenv to specify python 3.7.8 for reliable builds. There seem to be problems with later versions of python.
+
 ```
-python3 -m venv ./.py3env
+python -m venv ./.py3env
 . ./.py3env/bin/activate
 ```
 
@@ -30,4 +32,15 @@ Depending on the desired *output*, run one of the following commands from your p
 
 The builds will be placed in a folder corresponding to the output you chose.
 
-If you want to see more tools like Briefcase, please consider [becoming a financial member of BeeWare.](https://pybee.org/contributing/membership)
+## Deploying The Application
+
+It's a desktop app, so distribute the app itself however you would like. Ther is some required cloud infrastructure, though.
+
+### Google Cloud Setup
+
+You will need a GCP project, a GMail API instance, and some valid credentials. Follow the guides:
+* [Python Quickstart](https://developers.google.com/gmail/api/quickstart/python)
+* [Send Emails](https://developers.google.com/gmail/api/guides/sending)
+* [Create Credentials](https://developers.google.com/workspace/guides/create-credentials)
+
+Once you have these things set up, the `credentials.json` file goes in the `config` module.
