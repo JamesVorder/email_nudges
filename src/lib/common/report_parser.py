@@ -1,11 +1,6 @@
 import csv
 import re
-from functools import reduce
-from sqlalchemy import create_engine, and_, desc
-from sqlalchemy.orm import sessionmaker, aliased
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.exc import OperationalError
-from sqlalchemy.sql import func
+from sqlalchemy import and_, desc
 from .base import session_factory
 from ..db.report import Report
 from ..db.student import Student
@@ -14,11 +9,17 @@ from datetime import datetime
 from numpy import mean
 import itertools
 
-class StudentListReport:
 
+class GenericReport(object):
     def __init__(self, filename):
         self.filename = filename
         self.logger = logging.getLogger(__name__)
+
+
+class StudentListReport(GenericReport):
+
+    def __init__(self, filename):
+        super().__init__(filename)
         self.logger.debug(f"Initialized StudentListReport with {self.filename}")
 
     def read(self):
@@ -67,13 +68,8 @@ class StudentListReport:
 
         return new_students
 
-class Report(object):
-    def __init__(self, filename):
-        self.filename = filename
-        self.logger = logging.getLogger(__name__)
 
-
-class AttendanceReport(Report):
+class AttendanceReport(GenericReport):
     def __init__(self, filename, target_grade="09"):
         super().__init__(filename)
         self.target_grade = target_grade
@@ -91,14 +87,22 @@ class AttendanceReport(Report):
                 if re.search("Grade Level:.*$", row[0]):
                     curr_grade = re.search("(\d+)", row[0]).groups()[0]
                     self.logger.debug(f"curr_grad={curr_grade}")
-                #If this is a student's attendance report, and they're a ninth grader...
+
+                # If this is a student's attendance report, and they're a ninth grader...
                 elif re.search("\d{6}.*$", row[0]) and curr_grade == "09":
-                    #initialize the new report object
-                    new_report = Report(report_student_id = row[0], grade = curr_grade, days_enrolled = row[6],
-                            days_present = row[8], days_excused=row[9], days_not_excused = row[10], date_added = datetime.now().date())
+                    # initialize the new report object
+                    new_report = Report(
+                        report_student_id=row[0],
+                        grade=curr_grade,
+                        days_enrolled=row[6],
+                        days_present=row[8],
+                        days_excused=row[9],
+                        days_not_excused=row[10],
+                        date_added=datetime.now().date()
+                    )
                     self.logger.debug(f"new_report = {str(new_report)}")
-                    #if there is NOT already a matching report... (based on num days enrolled)
-                    #AND there's a student in our DB that this record belongs to...
+                    # if there is NOT already a matching report... (based on num days enrolled)
+                    # AND there's a student in our DB that this record belongs to...
                     if len(session.query(Report).filter(
                             and_(Report.report_student_id == new_report.report_student_id, Report.days_enrolled == new_report.days_enrolled)
                             ).all()) == 0 and len(session.query(Student).filter(Student.student_id == new_report.report_student_id).all()) > 0:
@@ -109,9 +113,14 @@ class AttendanceReport(Report):
                         merged = dict()
                         merged.update(student.as_dict())
                         merged.update(new_report.as_dict())
+
                         try:
-                            last_week_report = session.query(Report).filter(Report.report_student_id == new_report.report_student_id)\
-			        .order_by(desc(Report.days_enrolled))[1]
+                            last_week_report = session.query(Report).filter(
+                                Report.report_student_id == new_report.report_student_id
+                            ).order_by(
+                                desc(Report.days_enrolled)
+                            )[1]
+
                             weekly_stats = {
                                 'days_enrolled_weekly': float(new_report.days_enrolled) - float(last_week_report.days_enrolled),
                                 'days_present_weekly': float(new_report.days_present) - float(last_week_report.days_present)
@@ -159,7 +168,8 @@ class AttendanceReport(Report):
 
             return students_with_reports, average_attendance_rate, weekly_average_attendance_rate
 
-class GradesReport(Report):
+
+class GradesReport(GenericReport):
     def __init__(self, filename):
         super().__init__(filename)
         self.logger.debug(f"Initialized {__name__} with filename = '{self.filename}'")

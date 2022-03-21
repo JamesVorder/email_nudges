@@ -1,0 +1,10 @@
+build/*
+macOS/*
+.idea/*
+.python-version
+*.DS_Store
+*__pycache__*
+*.egg-info*
+*token.json
+*credentials.json
+*.log

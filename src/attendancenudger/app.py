@@ -2,18 +2,15 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-from .lib.common.report_parser import StudentListReport, AttendanceReport, GradesReport
-from .lib.common.nudger import Nudger
+from lib.common.report_parser import StudentListReport, AttendanceReport, GradesReport
+from lib.common.nudger import Nudger
 import yaml
-import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-import smtplib
 import sys
 import importlib.resources as pkg_resources
-from . import config
-from .lib.common.base import setup_logging
+import config
+from lib.common.base import setup_logging
 import logging
+
 
 class TextRedirector(object):
     def __init__(self, widget, tag="stdout"):
@@ -29,6 +26,7 @@ class TextRedirector(object):
         except:
             pass
 
+
 class App:
     def __init__(self, master):
 
@@ -37,6 +35,10 @@ class App:
 
         self.report_file = None
         self.grade_file = None
+        self.students_file = None
+        self.weekly_average_attendance_rate = None
+        self.average_attendance_rate = None
+        self.students_with_reports = []
 
         try:
             master.title("Attendance Nudge-er")
@@ -82,6 +84,13 @@ class App:
 
             setup_logging()
             self.logger = logging.getLogger(__name__)
+
+            self.logger.info("The students file is a file you build manually. It has the students' contact info, etc.")
+            self.logger.info("The attendance report should come from Aspen.")
+            self.logger.info("The grades report is not used for anything in this version.")
+            self.logger.info("Clicking 'Run Report' will send an email to everyone in the students file with their attendance information..")
+            self.logger.warning("SMS is currently disabled.")
+            self.logger.info("Waiting for files...")
 
         except:
             self.logger.exception("There was a problem initializing the UI.")
@@ -141,35 +150,44 @@ class App:
         try:
             nudger = Nudger(self.conf)
             sent = []
-            [sent.append(nudger.send_text(swr, self.average_attendance_rate, self.weekly_average_attendance_rate)) for swr in self.students_with_reports if swr['contact_by_phone']]
+
+            [
+                sent.append(
+                    nudger.send_text(
+                        swr,
+                        self.average_attendance_rate,
+                        self.weekly_average_attendance_rate
+                    )
+                ) for swr in self.students_with_reports if swr['contact_by_phone']
+            ]
+
             self.logger.info(f"Sent {len(sent)} text messages...")
         except:
             self.logger.exception("There was a problem sending the text messages.")
 
     def send_emails(self):
         try:
-            server = smtplib.SMTP('smtp.gmail.com:587')
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
             #The nudger will authenticate us, then send the emails
-            nudger = Nudger(self.conf, server)
+            nudger = Nudger(self.conf)
             sent = []
-            [sent.append(nudger.send_email(swr, self.average_attendance_rate, self.weekly_average_attendance_rate)) for swr in self.students_with_reports if not swr['contact_by_phone']]
+
+            [
+                sent.append(
+                    nudger.send_email(
+                        swr,
+                        self.average_attendance_rate,
+                        self.weekly_average_attendance_rate
+                    )
+                ) for swr in self.students_with_reports if not swr['contact_by_phone']
+            ]
+
             self.logger.info(f"Sent {len(sent)} emails...")
-            server.quit()
-            self.logger.debug(f"Connection to server ({repr(server)}) closed.")
         except:
             self.logger.exception("There was a problem sending the emails.")
 
     def send_logs(self):
-        with open("debug.log", "rb") as debug_log:
-            server = smtplib.SMTP('smtp.gmail.com:587')
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-            nudger = Nudger(self.conf, server)
-            nudger.send_logs(debug_log.read())
+        nudger = Nudger(self.conf)
+        nudger.send_logs("debug.log")
 
     def run_report(self):
         self.import_students()
@@ -177,13 +195,15 @@ class App:
             self.import_report()
         if self.grade_file is not None:
             self.import_grades()
-        self.send_sms()
         self.send_emails()
+        # TODO: Enable SMS once credentials are fixed
+        # self.send_sms()
         self.logger.info(f"Done!")
 
+
 def main():
-    self.logger.debug("attendancenudger.app.main touched.")
     pass
+
 
 root = Tk()
 app = App(root)
