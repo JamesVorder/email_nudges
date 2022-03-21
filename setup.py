@@ -88,7 +88,7 @@ setup(
         'travertino==0.1.2',
         'twilio==6.29.3',
         'uritemplate==4.1.1',
-        'urllib3==1.23',
+        'urllib3==1.26.5',
         'voc==0.1.6',
         'whichcraft==0.6.0'
         ], 
