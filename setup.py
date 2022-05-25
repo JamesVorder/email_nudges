@@ -69,7 +69,7 @@ setup(
         'protobuf==3.19.4',
         'pyasn1==0.4.8',
         'pyasn1-modules==0.2.8',
-        'PyJWT==1.7.1',
+        'PyJWT==2.4.0',
         'pyparsing==3.0.7',
         'PySocks==1.7.0',
         'python-dateutil==2.8.0',
