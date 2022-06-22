@@ -63,7 +63,7 @@ setup(
         'jmespath==0.9.4',
         'mac-alias==2.0.7',
         'MarkupSafe==1.1.1',
-        'numpy==1.17.1',
+        'numpy==1.22.0',
         'oauthlib==3.2.0',
         'poyo==0.5.0',
         'protobuf==3.19.4',
