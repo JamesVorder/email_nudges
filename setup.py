@@ -35,7 +35,7 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     ],
     install_requires=[
-        'arrow==0.14.5',
+        'arrow==0.15.1',
         'binaryornot==0.4.4',
         'biplist==1.0.3',
         'boto3==1.9.213',
