@@ -66,7 +66,7 @@ setup(
         'numpy==1.17.1',
         'oauthlib==3.2.0',
         'poyo==0.5.0',
-        'protobuf==3.19.4',
+        'protobuf==3.19.5',
         'pyasn1==0.4.8',
         'pyasn1-modules==0.2.8',
         'PyJWT==1.7.1',
