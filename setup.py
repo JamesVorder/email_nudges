@@ -42,7 +42,7 @@ setup(
         'botocore==1.12.213',
         'briefcase==0.2.9',
         'cachetools==5.0.0',
-        'certifi==2019.6.16',
+        'certifi==2022.12.7',
         'chardet==3.0.4',
         'Click==7.0',
         'cookiecutter==1.6.0',
