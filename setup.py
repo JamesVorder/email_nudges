@@ -64,7 +64,7 @@ setup(
         'mac-alias==2.0.7',
         'MarkupSafe==1.1.1',
         'numpy==1.17.1',
-        'oauthlib==3.2.0',
+        'oauthlib==3.2.2',
         'poyo==0.5.0',
         'protobuf==3.19.4',
         'pyasn1==0.4.8',
